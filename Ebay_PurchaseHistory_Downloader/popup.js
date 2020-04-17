@@ -43,14 +43,107 @@ function modifyDOM() {
         let totalPrice = []
 
 
-        //Total number of pages
-        let totalNumberOfPages = 0;
-        $(".pagination .pg").each(function(data){
-          totalNumberOfPages ++
+        let currentURL
+        $('.pagn a').each(function(){
+            currentURL = $(this).attr('data-url');
+            if(currentURL){
+                location.href = "https://www.ebay.com/myb/PurchaseHistory#" + currentURL
+            }
         })
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        async function waitTillPageLoads(){
+            $(".pagination .pg").each(function(data){
+                el = $(this)
+                $(this).click()
+                while($('.invisible-layer').html() != null){   //Loading
+                    if ($('.invisible-layer').html() == null){    //If it is not loading  
+                        console.log(el.html())  
+                        el.click()
+                        break
+                    }
+                }                    
+            }) 
+                
+        }
+
+        // el = $(this)
+        //                     el.click()
+        //                     console.log(`Loop`)
+        //                     setInterval(()=>{
+        //                         console.log(`Inside set interval`)
+        //                         if($('.invisible-layer').length() == 0){
+        //                             console.log($('.invisible-layer').html())
+        //                             console.log(`Loop2`)
+        //                             el.click()
+        //                         }
+        //                     },3000) 
+
+        //Total number of pages
+        async function waitTillPageLoads(){
+            let totalNumberOfPages = -1;
+            $(".pagination .pg").each(function(data){
+                totalNumberOfPages ++
+            })
+            for(let i =1;i<=totalNumberOfPages;i++){
+                $(".goto-page-input").val(i)
+                 $(".gotosubmit").click()
+                
+                 await setTimeout(()=>{
+
+                 },2000)
+                //Wait until page loads
+                while($(".goto-page-input").val() != ""){   //Loading
+                   //Loading
+                } 
+                
+                console.log(`Getting data of page ` + i)
+            }    
+        }
+        
+        $.post({
+            "type":"POST",
+            "url":"https://www.ebay.com/myb/PurchaseHistory#PurchaseHistoryOrdersContainer?ipp=25&Period=3&Filter=1&radioChk=1&GotoPage=2&_trksid=p2057872.m2749.l4670&cmid=2749&melid=page&_trksid=p2057872.m2749.l4670",
+            "success":function(data){
+                console.log(data)
+            }
+        })
+
+
+        waitTillPageLoads()
+
+      
+            
+      
+
+     
+
         $(".pagination .pagn a").each(function(data){
-          el = $(this)
+
+            el = $(this)
+
+            setTimeout(()=>{
+                if($('.invisible-layer').length == 0){
+                    el.click()
+                }
+            },300)  
+
+
+         
         //   $('.ajax-wrap').on(function(){el.click() });
         $(".order-date").find(".row-value").each(function() {
             orderDate.push($(this).html());
@@ -87,7 +180,7 @@ function modifyDOM() {
         $(".cost-label").each(function() {
             totalPrice.push($(this).html());
         })
-        el.click() 
+     
         })
 
         console.log(`Total number of pages ${totalNumberOfPages - 1}`)

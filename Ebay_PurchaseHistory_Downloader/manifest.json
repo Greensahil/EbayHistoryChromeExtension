@@ -1,6 +1,6 @@
 {
-  "name": "A browser action with a popup that changes the page color",
-  "description": "Change the current page color",
+  "name": "Ebay Purchase History Downloader",
+  "description": "Downloads Ebay's purchase history ",
   "version": "1.0",
   "permissions": [
     "activeTab",
@@ -23,7 +23,7 @@
     }
   ],
   "browser_action": {
-      "default_title": "Set this page's color.",
+      "default_title": "Download Purchase History.",
       "default_icon": "icon.png",
       "default_popup": "popup.html"
   },
