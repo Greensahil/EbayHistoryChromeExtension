@@ -13,12 +13,14 @@
   "content_scripts": [
     {
     "all_frames": false,
-    "matches": ["<all_urls>"],
+    "run_at": "document_start",
+    "matches": ["*://*.ebay.com/*"],
     "exclude_matches": [],
       "js": [
         "/src/jquery.js",
         "/src/sheet-min.js",
-        "/src/file-saver-min.js"
+        "/src/file-saver-min.js",
+        "content.js"
       ]
 
       // "css": [
@@ -26,12 +28,6 @@
       // ]
     }
   ],
-  "content_scripts": [{
-    "matches": ["*://*.ebay.com/*"],
-    "js": ["content.js"],
-    "run_at": "document_idle",
-    "all_frames": false
-  }],
   "browser_action": {
       "default_title": "Download Purchase History.",
       "default_icon": "icon.png",
