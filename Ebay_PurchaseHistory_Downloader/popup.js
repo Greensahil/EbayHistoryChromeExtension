@@ -1,18 +1,31 @@
 // Copyright (c) 2012 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-'use strict';
 
-function click(e) {
-    chrome.tabs.executeScript({
-        code: '(' + modifyDOM + ')();' //argument here is a string but function.toString() returns function's code
-    }, (results) => {
-        //Here we have just the innerHTML and not DOM structure
-        console.log('Popup script:')
-        console.log(results[0]);
-    });
-    window.close();
-}
+
+
+// Update the relevant fields with the new data.
+const setDOMInfo = info => {
+    console.log(info)
+};
+
+
+
+
+
+
+
+
+// function click(e) {
+//     chrome.tabs.executeScript({
+//         code: `(${modifyDOM})(${e});` //argument here is a string but function.toString() returns function's code
+//     }, (results) => {
+//         //Here we have just the innerHTML and not DOM structure
+//         console.log('Popup script:')
+//         console.log(results[0]);
+//     });
+//    // window.close();
+// }
 
 // function modifyDOM() {
 //   //You can play with your DOM here or check URL against your regex
@@ -22,34 +35,100 @@ function click(e) {
 // }
 
 //"document.body.style.backgroundColor='" + e.target.id + "'"
-document.addEventListener('DOMContentLoaded', function() {
-    var divs = document.querySelectorAll('.yearItem');
-    for (var i = 0; i < divs.length; i++) {
-        divs[i].addEventListener('click', click);
-    }
-});
 
+// Once the DOM is ready...
+window.addEventListener('DOMContentLoaded', () => {
+    // ...query for the active tab...
+    chrome.tabs.query({
+      active: true,
+      currentWindow: true
+    }, tabs => {
+      // ...and send a request for the DOM info...
+      chrome.tabs.sendMessage(
+          tabs[0].id,
+          {from: 'popup', subject: 'DOMInfo'},
+          // ...also specifying a callback to be called 
+          //    from the receiving end (content script).
+          setDOMInfo);
+    });
+  });
+
+document.addEventListener('DOMContentLoaded', function() {
+    // var divs = document.querySelectorAll('.yearItem');
+    // for (var i = 0; i < divs.length; i++) {
+    //     divs[i].addEventListener('click(this)');
+    // }
+    var modifiedElement
+    var filterYear
+    $(".yearItem").on("click",function(){
+        modifiedElement = $(this)
+
+        chrome.tabs.executeScript({
+            code: `1=1`   //Insert global variable here
+        }, function() {
+            chrome.tabs.executeScript({code: `(${modifyDOM})()`});
+        },(results) => {
+            //Here we have just the innerHTML and not DOM structure
+            console.log('Popup script:')
+            console.log(results);
+        });
+
+        console.log(filterYear)
+
+            //argument here is a string but function.toString() returns function's code
+        // },code:`var clickedButon = ${this.html()}` () => {
+        //     //Here we have just the innerHTML and not DOM structure
+        //     chrome.tabs.executeScript({
+        //     code: `(${modifyDOM}();)`
+        // });
+       // window.close();
+    })
+
+    // function modifyDOM(){
+       
+    // }
+});
+//str.indexOf("Example")
+//str.replaceAt(4,"4")
+
+// function getFilterYear(){
+//     return $(".filter-content").html()
+// }
 
 function modifyDOM() {
-
+        //Adding a prototpye replaceAt to String
+        // String.prototype.replaceAt=function(index, replacement) {
+        //     return this.substr(0, index) + replacement+ this.substr(index + replacement.length);
+        // }
+        // var page = 1
+        // if(clickedButton=="2020"){
+        //     page = 2
+        // }
+        // else if(clickedButton=="2019"){
+        //     page = 3 
+        // }
+        // else if(clickedButton=="2018"){
+        //     page = 4
+        // }
   
-        let typedArray = []
+        var typedArray = []
         //You can play with your DOM here or check URL against your regex
         function downloadListing() {
             let orderDate = []
             let itemID = []
             let privateNotes = []
             let sellerID = []
+            let sellerRating =[]
             let title = []
-            let paidDate = []
             let shippedDate = []
             let deliveryDate = []
             let qtyPurchased = []
             let shippingCost = []
+            let shippingType = []
             let totalPrice = []
             let shippingTrackingNumbers =[]
             let transactionDetailsURL = []
-            let currentURL
+            
     
             var allData = [];
     
@@ -59,11 +138,13 @@ function modifyDOM() {
             $('.pagn .pg').each(function(){
                 if($(this).attr('data-url')){
                     dataURL.push("https://www.ebay.com/myb/" + $(this).attr('data-url'));
+                    // .replaceAt($(this).attr('data-url').indexOf("Page=")+5,page));
                 }
             })
-    
+            
             //dataURL.shift() //Remove first item from array
             dataURL.splice(dataURL.length-1,1); //Remove last item from array
+            console.log(dataURL)
             for(let i = 0;i<dataURL.length;i++){
                 getAndPopulateData(dataURL[i],i)
             }
@@ -81,33 +162,39 @@ function modifyDOM() {
 
             $(document).ajaxStop(function () {
                 allDataObj = Object.values(allDataObj)
-                console.log(allData)
+                
                 for(let key in allDataObj){
                     
                     let arr = allDataObj[key]
+                    console.log(arr)
                     let shippedDateVal 
                     let deliveryDateVal
+                    let sellerInfo
                     for(let item of arr){
                         shippedDateVal = ""
                         deliveryDateVal = ""
+                        sellerInfo = ""
                         if(item.data.items[0].data.itemInfo.lineItemStates.shipped){
                             shippedDateVal =item.data.items[0].data.itemInfo.lineItemStates.shipped.params.date
                         }
                         if(item.data.items[0].data.itemInfo.lineItemStates.fundingStatus){
                             deliveryDateVal = item.data.items[0].data.itemInfo.lineItemStates.fundingStatus.params.date
                         }
+                        if(item.data.orderInfo.sellerInfo){
+                            sellerInfo = item.data.orderInfo.sellerInfo.login
+                        }
 
                         itemID.push(String(item.data.items[0].data.itemInfo.itemId))
                         orderDate.push(item.data.orderInfo.orderDate)
                         privateNotes.push(item.data.items[0].data.itemInfo.noteInfo.note)
-                        console.log(item.data.orderInfo)
-                        sellerID.push(item.data.orderInfo.sellerInfo.login)
+                        sellerID.push(sellerInfo)
+                        sellerRating.push(item.data.orderInfo.sellerInfo.fbPercent)
                         title.push(item.data.orderInfo.orderItemsTitle)
                         shippedDate.push(shippedDateVal)
                         deliveryDate.push(deliveryDateVal)
-                        paidDate.push(deliveryDateVal)
                         qtyPurchased.push(item.data.items[0].data.itemInfo.quantity)
                         shippingCost.push(item.data.items[0].data.buyingInfo.shippingPrice)
+                        shippingType.push(item.data.items[0].data.buyingInfo.shippingType)
                         totalPrice.push(item.data.items[0].data.buyingInfo.price)
                         shippingTrackingNumbers.push(item.data.orderInfo.shippingTrackingNumbers.toString())
                         transactionDetailsURL.push(item.data.items[0].actions[0].actionParam.url)
@@ -122,12 +209,13 @@ function modifyDOM() {
                     tempArray.push("ItemID")
                     tempArray.push("PrivateNote")
                     tempArray.push("Seller")
+                    tempArray.push("SellerRating%")
                     tempArray.push("Title")
-                    tempArray.push("PaidDate")
                     tempArray.push("ShippedDate")
                     tempArray.push("DeliveryDate")
                     tempArray.push("QtyPurchased")
                     tempArray.push("ShippingCost")
+                    tempArray.push("ShippingType")
                     tempArray.push("TotalPrice")
                     tempArray.push("ShipTrackingNums")
                     tempArray.push("TransDetailsURL")
@@ -139,12 +227,13 @@ function modifyDOM() {
                     tempArray.push(itemID[i])
                     tempArray.push(privateNotes[i])
                     tempArray.push(sellerID[i])
+                    tempArray.push(sellerRating[i])
                     tempArray.push(title[i])
-                    tempArray.push(paidDate[i])
                     tempArray.push(shippedDate[i])
                     tempArray.push(deliveryDate[i])
                     tempArray.push(qtyPurchased[i])
                     tempArray.push(shippingCost[i])
+                    tempArray.push(shippingType[i])
                     tempArray.push(totalPrice[i])
                     tempArray.push(shippingTrackingNumbers[i])
                     tempArray.push(transactionDetailsURL[i])
@@ -177,7 +266,6 @@ function modifyDOM() {
 
 
         function downloadExcelFile(typedArray) {
-            console.log(typedArray)
             var wb = XLSX.utils.book_new();
             wb.Props = {
                 Title: "Ebay Purchase History",
@@ -221,4 +309,5 @@ function modifyDOM() {
         //     return today = mm + '/' + dd + '/' + yyyy;
         // }
 
+        return $(".filter-content").html()
 }
