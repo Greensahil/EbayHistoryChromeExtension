@@ -1,76 +1,48 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Set Page Color Popup</title>
-    <style>
-    body {
-      overflow: hidden;
-      margin: 0px;
-      padding: 0px;
-      background: white;
-    }
-    .jumbotron {
-    padding: 2rem 1rem;
-    margin-bottom: 2rem;
-    background-color: #e9ecef;
-    border-radius: .3rem;}
+   <head>
+      <title>Set Page Color Popup</title>
+      <style>
+         body {
+         overflow: hidden;
+         margin: 0px;
+         padding: 0px;
+         background: white;
+         }
+         .yearItem{
+         cursor: pointer;
+         text-align: center;
+         padding: 8px 3px;
+         font-family: sans-serif;
+         font-size: 1em;
+         font-weight: bold;
+         width: 100%;
+         margin-top: 1px;
+         background: #cccccc;
+         }
+         h3{
+         padding-left:6px ;
+         padding-right: 6px;
+         }
+         div:hover {
+         background: #aaaaaa;
+         }
 
-    /* div:first-child {
-      margin-top: 0px;
-    } */
-
-    .yearItem{
-      cursor: pointer;
-      text-align: center;
-      padding: 8px 3px;
-      font-family: sans-serif;
-      font-size: 1em;
-      font-weight: bold;
-      width: 100%;
-      margin-top: 1px;
-      background: #cccccc;
-    }
-    h3{
-      padding-left:6px ;
-      padding-right: 6px;
-    }
-    div:hover {
-      background: #aaaaaa;
-    }
-    #red {
-      border: 1px solid red;
-      color: red;
-    }
-    #blue {
-      border: 1px solid blue;
-      color: blue;
-    }
-    #green {
-      border: 1px solid green;
-      color: green;
-    }
-    #yellow {
-      border: 1px solid yellow;
-      color: yellow;
-    }
-    </style>
-    <script src="src/jquery.js"></script>
-    <script src="src/file-saver-min.js"></script>
-    <script src="src/sheet-min.js"></script>
-    <script src="popup.js"></script>
-  </head>
-  <body>
-    <div class="jumbotron">
-      <img src="/icon.png" style="width: auto;height: 80%;">
-    </div>
-    <h3>Please make sure that you are in the purchase history page. 
-      If you are not sure how to get to the page click <a href="https://www.ebay.com/myb/PurchaseHistory" target="_blank">here</a>. 
-      Select the time frame for purchase history</h3>
+      </style>
+      <script src="src/jquery.js"></script>
+      <script src="src/file-saver-min.js"></script>
+      <script src="src/sheet-min.js"></script>
+      <script src="popup.js"></script>
+   </head>
+   <body>
+      <div class="jumbotron">
+         <img src="/icon.png" style="width: auto;height: 80%;">
+      </div>
+      <h3 style="margin: 0 auto;">Please make sure that you are in the purchase history page. 
+         If you are not sure how to get to the page click <a href="https://www.ebay.com/myb/PurchaseHistory" target="_blank">here</a>. 
+         Select the time frame for purchase history
+      </h3>
       <p>Once you are in the purchase history page select the timeframe you want to download your purchase history by selecting a time from see orders from drop down</p>
-    <div style="margin: 0 auto;">
-    
-    
-      <div class="yearItem">Download 2020</div>
-  </div>
-  </body>
+      <div style="margin: 0 auto;" class="yearItem">Download purchase history for <span class="dynamicYear">The last 60 days</span></div>
+   </body>
 </html>
