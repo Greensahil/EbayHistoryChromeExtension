@@ -51,20 +51,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
             var dataURL = [];
             var allDataObj = {};
-       
+
+
+
+
             $('.pagn .pg').each(function() {
                 if ($(this).attr('data-url')) {
                     dataURL.push("https://www.ebay.com/myb/" + $(this).attr('data-url'));
                     // .replaceAt($(this).attr('data-url').indexOf("Page=")+5,page));
                 }
             })
-            
+
+
             //dataURL.shift() //Remove first item from array
             dataURL.splice(dataURL.length - 1, 1); //Remove last item from array
+
+
+
             for (let i = 0; i < dataURL.length; i++) {
                 getAndPopulateData(dataURL[i], i)
             }
-         
+
             function getAndPopulateData(url, currentIndex) {
                 $.ajax({
                     type: "GET",
@@ -75,97 +82,102 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
             }
-        
+
+
+
             $(document).ajaxStop(function() {
-                allDataObj = Object.values(allDataObj)
+                if (allDataObj) { //I will set allDataObj to undefined after finishing this. Without doing this multiple files were downloading
+                    //If you downloaded 1 file it was working fine but if you then donwloaded another file it was downlaoding multiple files. I guessed this
+                    //was because of ajax requests firing multiple times which meant ajax stop was firing multiple times as well. I am still not 100% sure what was causing it
+                    //but this fixes it
+                    allDataObj = Object.values(allDataObj)
+                    for (let key in allDataObj) {
 
-                for (let key in allDataObj) {
+                        let arr = allDataObj[key]
+                        let shippedDateVal
+                        let deliveryDateVal
+                        let sellerInfo
+                        for (let item of arr) {
+                            shippedDateVal = ""
+                            deliveryDateVal = ""
+                            sellerInfo = ""
 
-                    let arr = allDataObj[key]
-                    let shippedDateVal
-                    let deliveryDateVal
-                    let sellerInfo
-                    for (let item of arr) {
-                        shippedDateVal = ""
-                        deliveryDateVal = ""
-                        sellerInfo = ""
-                    
-                        if(item.data.items){
-                            if (item.data.items[0].data.itemInfo.lineItemStates.shipped) {
-                                shippedDateVal = (item.data.items[0].data.itemInfo.lineItemStates.shipped.params)?item.data.items[0].data.itemInfo.lineItemStates.shipped.params.date:""
+                            if (item.data.items) {
+                                if (item.data.items[0].data.itemInfo.lineItemStates.shipped) {
+                                    shippedDateVal = (item.data.items[0].data.itemInfo.lineItemStates.shipped.params) ? item.data.items[0].data.itemInfo.lineItemStates.shipped.params.date : ""
+                                }
+                                if (item.data.items[0].data.itemInfo.lineItemStates.fundingStatus) {
+                                    deliveryDateVal = item.data.items[0].data.itemInfo.lineItemStates.fundingStatus.params.date
+                                }
+                                if (item.data.orderInfo.sellerInfo) {
+                                    sellerInfo = item.data.orderInfo.sellerInfo.login
+                                }
+                                itemID.push(String(item.data.items[0].data.itemInfo.itemId))
+                                orderDate.push(item.data.orderInfo.orderDate)
+                                privateNotes.push(item.data.items[0].data.itemInfo.noteInfo.note)
+                                sellerID.push(sellerInfo)
+                                sellerRating.push(item.data.orderInfo.sellerInfo.fbPercent)
+                                title.push(item.data.orderInfo.orderItemsTitle)
+                                shippedDate.push(shippedDateVal)
+                                //deliveryDate.push(deliveryDateVal)
+                                qtyPurchased.push(item.data.items[0].data.itemInfo.quantity)
+                                shippingCost.push(item.data.items[0].data.buyingInfo.shippingPrice)
+                                shippingType.push(item.data.items[0].data.buyingInfo.shippingType)
+                                totalPrice.push(item.data.items[0].data.buyingInfo.price)
+                                shippingTrackingNumbers.push(item.data.orderInfo.shippingTrackingNumbers.toString())
+                                transactionDetailsURL.push(item.data.items[0].actions[0].actionParam.url)
                             }
-                            if (item.data.items[0].data.itemInfo.lineItemStates.fundingStatus) {
-                                deliveryDateVal = item.data.items[0].data.itemInfo.lineItemStates.fundingStatus.params.date
-                            }
-                            if (item.data.orderInfo.sellerInfo) {
-                                sellerInfo = item.data.orderInfo.sellerInfo.login
-                            }
-                            itemID.push(String(item.data.items[0].data.itemInfo.itemId))
-                            orderDate.push(item.data.orderInfo.orderDate)
-                            privateNotes.push(item.data.items[0].data.itemInfo.noteInfo.note)
-                            sellerID.push(sellerInfo)
-                            sellerRating.push(item.data.orderInfo.sellerInfo.fbPercent)
-                            title.push(item.data.orderInfo.orderItemsTitle)
-                            shippedDate.push(shippedDateVal)
-                            //deliveryDate.push(deliveryDateVal)
-                            qtyPurchased.push(item.data.items[0].data.itemInfo.quantity)
-                            shippingCost.push(item.data.items[0].data.buyingInfo.shippingPrice)
-                            shippingType.push(item.data.items[0].data.buyingInfo.shippingType)
-                            totalPrice.push(item.data.items[0].data.buyingInfo.price)
-                            shippingTrackingNumbers.push(item.data.orderInfo.shippingTrackingNumbers.toString())
-                            transactionDetailsURL.push(item.data.items[0].actions[0].actionParam.url)
-                        }              
-                        
-                        // currentURL.push(item.data.orderInfo.orderDate)
+
+                            // currentURL.push(item.data.orderInfo.orderDate)
+                        }
                     }
-                }
 
-                let tempArray = []
-                typedArray = []
-                //Set headers
-                tempArray.push("OrderDate")
-                tempArray.push("ItemID")
-                tempArray.push("PrivateNote")
-                tempArray.push("Seller")
-                tempArray.push("SellerRating%")
-                tempArray.push("Title")
-                tempArray.push("ShippedDate")
-                //tempArray.push("DeliveryDate")
-                tempArray.push("QtyPurchased")
-                tempArray.push("ShippingCost")
-                tempArray.push("ShippingType")
-                tempArray.push("TotalPrice")
-                tempArray.push("ShipTrackingNums")
-                tempArray.push("TransDetailsURL")
-                typedArray.push(tempArray)
-
-
-                
-                for (let i = 0; i < orderDate.length; i++) {
-                    tempArray = []
-                    tempArray.push(orderDate[i])
-                    tempArray.push(itemID[i])
-                    tempArray.push(privateNotes[i])
-                    tempArray.push(sellerID[i])
-                    tempArray.push(sellerRating[i])
-                    tempArray.push(title[i])
-                    tempArray.push(shippedDate[i])
-                    //tempArray.push(deliveryDate[i])
-                    tempArray.push(qtyPurchased[i])
-                    tempArray.push(shippingCost[i])
-                    tempArray.push(shippingType[i])
-                    tempArray.push(totalPrice[i])
-                    tempArray.push(shippingTrackingNumbers[i])
-                    tempArray.push(transactionDetailsURL[i])
-
-
-                    //Push each array as a row to typed array
+                    let tempArray = []
+                    typedArray = []
+                    //Set headers
+                    tempArray.push("OrderDate")
+                    tempArray.push("ItemID")
+                    tempArray.push("PrivateNote")
+                    tempArray.push("Seller")
+                    tempArray.push("SellerRating%")
+                    tempArray.push("Title")
+                    tempArray.push("ShippedDate")
+                    //tempArray.push("DeliveryDate")
+                    tempArray.push("QtyPurchased")
+                    tempArray.push("ShippingCost")
+                    tempArray.push("ShippingType")
+                    tempArray.push("TotalPrice")
+                    tempArray.push("ShipTrackingNums")
+                    tempArray.push("TransDetailsURL")
                     typedArray.push(tempArray)
+
+
+
+                    for (let i = 0; i < orderDate.length; i++) {
+                        tempArray = []
+                        tempArray.push(orderDate[i])
+                        tempArray.push(itemID[i])
+                        tempArray.push(privateNotes[i])
+                        tempArray.push(sellerID[i])
+                        tempArray.push(sellerRating[i])
+                        tempArray.push(title[i])
+                        tempArray.push(shippedDate[i])
+                        //tempArray.push(deliveryDate[i])
+                        tempArray.push(qtyPurchased[i])
+                        tempArray.push(shippingCost[i])
+                        tempArray.push(shippingType[i])
+                        tempArray.push(totalPrice[i])
+                        tempArray.push(shippingTrackingNumbers[i])
+                        tempArray.push(transactionDetailsURL[i])
+
+
+                        //Push each array as a row to typed array
+                        typedArray.push(tempArray)
+                    }
+
+                    allDataObj = undefined
+                    downloadExcelFile(typedArray)
                 }
-
-
-                downloadExcelFile(typedArray)
-
 
             });
 
@@ -207,6 +219,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
 
-        return $(".filter-content").html()
+        return $(".filter-content").html().replace("See orders from", "")
     }
 })
