@@ -2,7 +2,13 @@ chrome.runtime.onMessage.addListener(
   function(message, sender, sendResponse) {
       switch(message.type) {
           case "getCount":
-              sendResponse($(".filter-content").html().replace("See orders from",""));     //The filter year
+              let dateFilter = $('div:contains("See orders from")').find(".expand-btn__cell:first-child").first().text()
+              
+               if(!dateFilter || dateFilter == ""){
+                  dateFilter = "2021"
+               } 
+
+              sendResponse(dateFilter);     //The filter year
               break;
           default:
               console.error("Unrecognised message: ", message);
