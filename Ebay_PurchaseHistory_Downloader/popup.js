@@ -1,3 +1,17 @@
+//https://itnext.io/all-youll-ever-need-to-know-about-chrome-extensions-ceede9c28836
+//Things to note:
+//when the popup is clicked the manifest.json files tells it to open popup.html. popup.html has popop.js script inside it
+//The problem that needed to be solved in terms of communication is that the content.js has access to the entire page that the user is using but not the popup
+//popup.js and popup.html has access to the popup only
+//I do not need background.js for this project because I do not need to constantly listen
+//So since popup.html is fired on popup open which in turn fires popup.js, the first thing it asks for to content.js is what is the timeframe that 
+//the user has selected in the content.js as popup has no idea about that. content is listening for that message and when it reads it, it sends a 
+//response back to popup which it can use to do stuff
+
+
+//debugging notes
+//you can just save in vscode and hit update to update extension. You do not have to remove and re-add the extension
+
 chrome.tabs.query({
     active: true,
     currentWindow: true
@@ -9,6 +23,11 @@ chrome.tabs.query({
     });
 });
 
+// chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+//     sendResponse({
+//         data: "I am fine, thank you. How is life in the background?"
+//     }); 
+// });
 
 document.addEventListener('DOMContentLoaded', function() {
     var modifiedElement
@@ -27,7 +46,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     function modifyDOM() {
-
         var typedArray = []
 
         function downloadListing() {
@@ -52,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var dataURL = [];
             var allDataObj = {};
 
-
+           
 
 
             $('.pagn .pg').each(function() {
@@ -62,12 +80,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
 
+            
 
             //dataURL.shift() //Remove first item from array
             dataURL.splice(dataURL.length - 1, 1); //Remove last item from array
 
-
-
+           
             for (let i = 0; i < dataURL.length; i++) {
                 getAndPopulateData(dataURL[i], i)
             }
@@ -218,7 +236,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return buf;
         }
 
+        dateFilter = "2021"
+        return dateFilter
 
-        return $(".filter-content").html().replace("See orders from", "")
+
     }
 })

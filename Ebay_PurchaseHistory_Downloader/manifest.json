@@ -1,14 +1,13 @@
 {
   "name": "Ebay Purchase History Downloader",
   "description": "Downloads Ebay's purchase history ",
-  "version": "1.2",
+  "version": "1.3",
   "permissions": [
     "activeTab",
-    "notifications"
+    "notifications",
+    "http://*/",
+    "https://*/"
   ],
-  "background": {
-    "page": "popup.html"  //When you go to chrome extenstion this allows you to see the background page
-  },
   "content_scripts": [
     {
     "all_frames": false,
