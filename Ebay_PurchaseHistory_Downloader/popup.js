@@ -12,6 +12,10 @@
 //debugging notes
 //you can just save in vscode and hit update to update extension. You do not have to remove and re-add the extension
 
+
+//Also, I had to disable the video speed controller extension that I had installed to make this extension work. Without doing that I was getting an error message:
+//Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+
 chrome.tabs.query({
     active: true,
     currentWindow: true
@@ -46,9 +50,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     function modifyDOM() {
+      
         var typedArray = []
 
         function downloadListing() {
+            
+            let orderNumber = []
             let orderDate = []
             let itemID = []
             let privateNotes = []
@@ -71,32 +78,41 @@ document.addEventListener('DOMContentLoaded', function() {
             var allDataObj = {};
 
            
-
-
-            $('.pagn .pg').each(function() {
-                if ($(this).attr('data-url')) {
-                    dataURL.push("https://www.ebay.com/myb/" + $(this).attr('data-url'));
-                    // .replaceAt($(this).attr('data-url').indexOf("Page=")+5,page));
+            //https://www.ebay.com/myb/PurchaseHistory?filter=year_filter%3ATWO_YEARS_AGO&displayState=UNHIDDEN&page=2&moduleId=2749&pg=purchase
+            //https://www.ebay.com/myb//module_provider/purchase_activity?filter=year_filter:TWO_YEARS_AGO&displayState=UNHIDDEN&page=1&modules=ORDERS&moduleId=2749
+            // $('.pagn .pg').each(function() {
+            //     if ($(this).attr('data-url')) {
+            //         dataURL.push("https://www.ebay.com/myb/" + $(this).attr('data-url'));
+            //         // .replaceAt($(this).attr('data-url').indexOf("Page=")+5,page));
+            //     }
+            // })
+            //https://www.ebay.com/myb/PurchaseHistory?filter=year_filter%3ATWO_YEARS_AGO&displayState=UNHIDDEN&page=5&moduleId=2749&pg=purchase
+            //https://www.ebay.com/myb/PurchaseHistory?filter=year_filter:TWO_YEARS_AGO&displayState=UNHIDDEN&page=5&modules=ORDERS&moduleId=2749
+            $('.pagination__item').each(function() {
+                if ($(this).attr('data-href')) {
+                    dataURL.push("https://www.ebay.com/myb/PurchaseHistory?" + $(this).attr('data-href').split("?")[1] + "&pg=purchase");
+                    //.replaceAt($(this).attr('data-url').indexOf("Page=")+5,page));
                 }
             })
-
             
 
-            //dataURL.shift() //Remove first item from array
-            dataURL.splice(dataURL.length - 1, 1); //Remove last item from array
-
-           
+            //https://www.ebay.com/mye/myebay/ajax/purchase/get?…N&page=1&modules=ORDERS&moduleId=2749&pg=purchase
+            //https://www.ebay.com/mye/myebay/ajax/purchase/get?…N&page=1&modules=ORDERS&moduleId=2749&pg=purchase
+            ///mye/myebay/ajax/purchase/get?filter=year_filter:T…=ORDERS&moduleId=2749&pg=purchase&_=1626221981067
             for (let i = 0; i < dataURL.length; i++) {
+                console.log(dataURL)
                 getAndPopulateData(dataURL[i], i)
             }
-
+            //254320785974&transId=2537458400015
             function getAndPopulateData(url, currentIndex) {
                 $.ajax({
                     type: "GET",
                     url: url,
-                    success: function(data) {
-                        allDataObj[`${currentIndex}`] = data.data.items
-                        allData.push(data)
+                    success: function(htmlPage) {
+                        //console.log($(htmlPage).find(".m-order-card").text())
+                        allDataObj[`${currentIndex}`] = $(htmlPage).find(".m-order-card")
+                        //allDataObj[`${currentIndex}`] = data.data.items
+                        // allData.push(data)
                     }
                 })
             }
@@ -108,85 +124,61 @@ document.addEventListener('DOMContentLoaded', function() {
                     //If you downloaded 1 file it was working fine but if you then donwloaded another file it was downlaoding multiple files. I guessed this
                     //was because of ajax requests firing multiple times which meant ajax stop was firing multiple times as well. I am still not 100% sure what was causing it
                     //but this fixes it
-                    allDataObj = Object.values(allDataObj)
-                    for (let key in allDataObj) {
-
-                        let arr = allDataObj[key]
-                        let shippedDateVal
-                        let deliveryDateVal
-                        let sellerInfo
-                        for (let item of arr) {
-                            shippedDateVal = ""
-                            deliveryDateVal = ""
-                            sellerInfo = ""
-
-                            if (item.data.items) {
-                                if (item.data.items[0].data.itemInfo.lineItemStates.shipped) {
-                                    shippedDateVal = (item.data.items[0].data.itemInfo.lineItemStates.shipped.params) ? item.data.items[0].data.itemInfo.lineItemStates.shipped.params.date : ""
-                                }
-                                if (item.data.items[0].data.itemInfo.lineItemStates.fundingStatus) {
-                                    deliveryDateVal = item.data.items[0].data.itemInfo.lineItemStates.fundingStatus.params.date
-                                }
-                                if (item.data.orderInfo.sellerInfo) {
-                                    sellerInfo = item.data.orderInfo.sellerInfo.login
-                                }
-                                itemID.push(String(item.data.items[0].data.itemInfo.itemId))
-                                orderDate.push(item.data.orderInfo.orderDate)
-                                privateNotes.push(item.data.items[0].data.itemInfo.noteInfo.note)
-                                sellerID.push(sellerInfo)
-                                sellerRating.push(item.data.orderInfo.sellerInfo.fbPercent)
-                                title.push(item.data.orderInfo.orderItemsTitle)
-                                shippedDate.push(shippedDateVal)
-                                //deliveryDate.push(deliveryDateVal)
-                                qtyPurchased.push(item.data.items[0].data.itemInfo.quantity)
-                                shippingCost.push(item.data.items[0].data.buyingInfo.shippingPrice)
-                                shippingType.push(item.data.items[0].data.buyingInfo.shippingType)
-                                totalPrice.push(item.data.items[0].data.buyingInfo.price)
-                                shippingTrackingNumbers.push(item.data.orderInfo.shippingTrackingNumbers.toString())
-                                transactionDetailsURL.push(item.data.items[0].actions[0].actionParam.url)
-                            }
-
-                            // currentURL.push(item.data.orderInfo.orderDate)
+                    for(let pageNumber in allDataObj){
+                        //This is an array of jquery elements for the card ebay uses for each item
+                        let allCardsInThisPage = allDataObj[pageNumber]
+                        
+                        for(let item of allCardsInThisPage){
+                            orderNumber.push($(item).find(".ph-col__info-orderNumber").text().split("ORDER NUMBER")[1])
+                            orderDate.push($(item).find(".ph-col__info-orderDate").text().split("ORDER DATE")[1])
                         }
+
+
+
+
+
+
                     }
 
                     let tempArray = []
                     typedArray = []
                     //Set headers
+                    tempArray.push("OrderNumber")
                     tempArray.push("OrderDate")
-                    tempArray.push("ItemID")
-                    tempArray.push("PrivateNote")
-                    tempArray.push("Seller")
-                    tempArray.push("SellerRating%")
-                    tempArray.push("Title")
-                    tempArray.push("ShippedDate")
-                    //tempArray.push("DeliveryDate")
-                    tempArray.push("QtyPurchased")
-                    tempArray.push("ShippingCost")
-                    tempArray.push("ShippingType")
-                    tempArray.push("TotalPrice")
-                    tempArray.push("ShipTrackingNums")
-                    tempArray.push("TransDetailsURL")
+                    // tempArray.push("ItemID")
+                    // tempArray.push("PrivateNote")
+                    // tempArray.push("Seller")
+                    // tempArray.push("SellerRating%")
+                    // tempArray.push("Title")
+                    // tempArray.push("ShippedDate")
+                    // //tempArray.push("DeliveryDate")
+                    // tempArray.push("QtyPurchased")
+                    // tempArray.push("ShippingCost")
+                    // tempArray.push("ShippingType")
+                    // tempArray.push("TotalPrice")
+                    // tempArray.push("ShipTrackingNums")
+                    // tempArray.push("TransDetailsURL")
                     typedArray.push(tempArray)
 
 
 
-                    for (let i = 0; i < orderDate.length; i++) {
+                    for (let i = 0; i < orderNumber.length; i++) {
                         tempArray = []
+                        tempArray.push(orderNumber[i])
                         tempArray.push(orderDate[i])
-                        tempArray.push(itemID[i])
-                        tempArray.push(privateNotes[i])
-                        tempArray.push(sellerID[i])
-                        tempArray.push(sellerRating[i])
-                        tempArray.push(title[i])
-                        tempArray.push(shippedDate[i])
-                        //tempArray.push(deliveryDate[i])
-                        tempArray.push(qtyPurchased[i])
-                        tempArray.push(shippingCost[i])
-                        tempArray.push(shippingType[i])
-                        tempArray.push(totalPrice[i])
-                        tempArray.push(shippingTrackingNumbers[i])
-                        tempArray.push(transactionDetailsURL[i])
+                        // tempArray.push(itemID[i])
+                        // tempArray.push(privateNotes[i])
+                        // tempArray.push(sellerID[i])
+                        // tempArray.push(sellerRating[i])
+                        // tempArray.push(title[i])
+                        // tempArray.push(shippedDate[i])
+                        // //tempArray.push(deliveryDate[i])
+                        // tempArray.push(qtyPurchased[i])
+                        // tempArray.push(shippingCost[i])
+                        // tempArray.push(shippingType[i])
+                        // tempArray.push(totalPrice[i])
+                        // tempArray.push(shippingTrackingNumbers[i])
+                        // tempArray.push(transactionDetailsURL[i])
 
 
                         //Push each array as a row to typed array
@@ -195,6 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     allDataObj = undefined
                     downloadExcelFile(typedArray)
+
                 }
 
             });
