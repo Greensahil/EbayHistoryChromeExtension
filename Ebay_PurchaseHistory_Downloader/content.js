@@ -4,7 +4,7 @@ chrome.runtime.onMessage.addListener(
   function(message, sender, sendResponse) {
       switch(message.type) {
           case "getCount":
-            let dateFilter = $('div:contains("See orders from:")').find(".expand-btn__cell:first-child").first().text();
+            let dateFilter = $('.container-actions .filter .menu-button__button.expand-btn--borderless.expand-btn.expand-btn--secondary').find(".expand-btn__cell").text().split("AllNot")[0].replace("Not hidden","");
 
             if(!dateFilter || dateFilter == ""){
                 dateFilter = "2021"
