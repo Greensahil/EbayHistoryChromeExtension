@@ -15,6 +15,9 @@
 
 //Also, I had to disable the video speed controller extension that I had installed to make this extension work. Without doing that I was getting an error message:
 //Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+
+//Note on pattern match:
+//The second pattern match is for ebay.co.uk
 chrome.tabs.query({
     active: true,
     currentWindow: true
