@@ -26,6 +26,7 @@ chrome.tabs.query({
         type: "getCount"
     }, function(downloadTimeFrame) {
         $(".dynamicYear").html(downloadTimeFrame)
+        
     });
 });
 
@@ -83,7 +84,8 @@ document.addEventListener('DOMContentLoaded', function() {
         function downloadListing() {
             $('.pagination__item').each(function() {
                 if ($(this).attr('data-href')) {
-                    dataURL.push("https://www.ebay.com/myb/PurchaseHistory?" + $(this).attr('data-href').split("?")[1] + "&pg=purchase");
+                    //not hardcoding https://www.ebay.com/myb/PurchaseHistory because based on which country it is, it might not be the same url
+                    dataURL.push(`${location.href.split("PurchaseHistory?")[0]}/PurchaseHistory?` + $(this).attr('data-href').split("?")[1] + "&pg=purchase");
                     //.replaceAt($(this).attr('data-url').indexOf("Page=")+5,page));
                 }
             })

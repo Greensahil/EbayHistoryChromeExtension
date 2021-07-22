@@ -5,7 +5,6 @@ chrome.runtime.onMessage.addListener(
       switch(message.type) {
           case "getCount":
             let dateFilter = $('.container-actions .filter .menu-button__button.expand-btn--borderless.expand-btn.expand-btn--secondary').find(".expand-btn__cell").text().split("AllNot")[0].replace("Not hidden","");
-
             if(!dateFilter || dateFilter == ""){
                 dateFilter = "2021"
             }
