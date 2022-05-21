@@ -11,8 +11,7 @@
 
 //debugging notes
 //you can just save in vscode and hit update to update extension. You do not have to remove and re-add the extension
-//You can do step debugging by right click on the extension and doing inspect popup
-// Also there is no need to refresh the page with extension. Once you reload the code it is reloaded everywhere
+//You can do step debugging by going to the sources top >> www.ebay.com>> myb > purchaseHistory
 
 //Also, I had to disable the video speed controller extension that I had installed to make this extension work. 
 //Without doing that I was getting an error message:
@@ -24,9 +23,7 @@
 //Note on pattern match:
 //The second pattern match is for ebay.co.uk
 
-// // Since we are in manifest version 3 now we need to change browser action to action
-// Other things were also changed here is a stack overflow link that explains it
-// https://stackoverflow.com/questions/63308160/how-to-migrate-manifest-version-2-to-v3-for-chrome-extension
+// //  We should switch to manifest 3 soon
 
 chrome.tabs.query({
     active: true,
@@ -50,27 +47,14 @@ document.addEventListener('DOMContentLoaded', function() {
     let modifiedElement
     $(".yearItem").on("click", function() {
         modifiedElement = $(this)
-        
 
-        // tabID has to be put on the target object so need to get the tabID
-        let tabIDFromQuery
-        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            var currTab = tabs[0];
-            if (currTab) { // Sanity check
-                tabIDFromQuery = currTab.id
-                
-                //Manifest 3 change chrome.tabs.executeScript to chrome.scripting.executeScript
-                chrome.scripting.executeScript({
-                    target: {tabId: tabIDFromQuery},
-                    function: modifyDOM(),
-                    args: ['Hello']  
-                }, (results) => {
-                    //Here we have just the innerHTML and not DOM structure
-                });
+        chrome.tabs.executeScript({
+            code: '(' + modifyDOM + ')();' //argument here is a string but function.toString() returns function's code
+        }, (results) => {
+            //Here we have just the innerHTML and not DOM structure
+        });
 
-                //window.close();
-            }
-          })
+        window.close();
     });
 
 
@@ -105,11 +89,8 @@ document.addEventListener('DOMContentLoaded', function() {
         //let allHTMLPages = ``
 
         function downloadListing() {
-            console.log(`DOWNLOAD LISTING FIRED`)
             $('.pagination__item').each(function() {
                 if ($(this).attr('data-href')) {
-                    console.log("DATA-URI")
-                    console.log(`${location.href.split("purchase?")[0]}/purchase?` + $(this).attr('data-href').split("?")[1] + "&pg=purchase")
                     //not hardcoding https://www.ebay.com/myb/PurchaseHistory because based on which country it is, it might not be the same url
                     dataURL.push(`${location.href.split("purchase?")[0]}/purchase?` + $(this).attr('data-href').split("?")[1] + "&pg=purchase");
                     //.replaceAt($(this).attr('data-url').indexOf("Page=")+5,page));
@@ -175,8 +156,49 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
                         
+                        
+                        // 
+
+                        // let ajaxCounterForShippingPages = 0
+                        // let shippingHTMLPages = ``
+                        // $.ajax({
+                        //     type: "GET",
+                        //     url: shippingInfoURL,
+                        //     success: function(htmlPage) {
+                        //         shippingHTMLPages = shippingHTMLPages + htmlPage
+                        //         ajaxCounterForShippingPages += 1
+                        //         if (ajaxCounterForAllPages == allCardsItems.length) {
+                        //             parseDataForShippingPage(allHTMLPages, orderNumber) //global var but still passing, orderNumber is an array
+                        //         }
+                        //     }
+                        // })
                     }
                 }
+
+
+                
+
+                // function parseDataForShippingPage(allHTMLShippingPagesCombined, orderNumberArr) {
+                //     let shippingCostArrOfElm = $(allHTMLShippingPagesCombined).find(".c-std") //c-std class is for all three cards rather than just one card in each page
+
+                //     let orderNumberCounter = 0;
+                //     for (let i = 0; i < shippingCostArrOfElm; i++) {
+                //         if (i % 2 == 0) {
+                //             let currentOrderNumber = orderNumberArr[orderNumberCounter]
+                //             shippingObject[currentOrderNumber].shippingCost = shippingCostArrOfElm[i].find("#orderCostItemSubTotal").text();
+                //             orderNumberCounter += 1
+                //         }
+                //     }
+
+                //     setupExcelFileForDownload()
+                //     // //:odd gives me every second element in the html which is what I want
+                //     // $(allHTMLShippingPagesCombined).$(".c-std:odd").each(function(elm) {
+                //     //     shippingObject[orderNumber].shippingCost = elm.find("#orderCostItemSubTotal").text()
+                //     // })
+
+
+
+                // }
 
 
             }
