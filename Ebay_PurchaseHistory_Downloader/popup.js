@@ -33,6 +33,8 @@ chrome.tabs.query({
         type: "getCount"
     }, function(downloadTimeFrame) {
         //$(".dynamicYear").html(downloadTimeFrame)
+        // I wanted to show the dates dynamically but sometimes this does not work for no reason
+        // This date here has no value anyway except confirmation anyway so just saying selected date instead
         $(".dynamicYear").html(" Selected Date")
     });
 });
