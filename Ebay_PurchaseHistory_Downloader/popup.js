@@ -13,11 +13,18 @@
 //you can just save in vscode and hit update to update extension. You do not have to remove and re-add the extension
 //You can do step debugging by going to the sources top >> www.ebay.com>> myb > purchaseHistory
 
-//Also, I had to disable the video speed controller extension that I had installed to make this extension work. Without doing that I was getting an error message:
+//Also, I had to disable the video speed controller extension that I had installed to make this extension work. 
+//Without doing that I was getting an error message:
 //Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
 
+
+// MANIFEST.JSON NOTES
+// COMMENTS ARE NOT PERMITTED IN MANIFEST.JSON SO ADDING IT HERE INSTEAD
 //Note on pattern match:
 //The second pattern match is for ebay.co.uk
+
+// // Since we are in manifest version 3 now we need to change browser action to action
+
 chrome.tabs.query({
     active: true,
     currentWindow: true
