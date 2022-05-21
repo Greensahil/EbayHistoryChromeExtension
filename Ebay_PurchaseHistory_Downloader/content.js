@@ -9,8 +9,9 @@ chrome.runtime.onMessage.addListener(
             if(!dateFilter || dateFilter == ""){
                 dateFilter = "2021"
             }
-            sendResponse(dateFilter);     //The filter year
-            break;
+            return Promise.resolve(dateFilter)
+            //sendResponse(dateFilter);     //If you want to send synchronously use sendResponse
+            //break;
           default:
               console.error("Unrecognized message: ", message);
       }

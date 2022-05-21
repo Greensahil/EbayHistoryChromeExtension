@@ -32,8 +32,8 @@ chrome.tabs.query({
     chrome.tabs.sendMessage(tabs[0].id, {
         type: "getCount"
     }, function(downloadTimeFrame) {
-        $(".dynamicYear").html(downloadTimeFrame)
-        
+        //$(".dynamicYear").html(downloadTimeFrame)
+        $(".dynamicYear").html(" Selected Date")
     });
 });
 
@@ -91,8 +91,34 @@ document.addEventListener('DOMContentLoaded', function() {
         function downloadListing() {
             $('.pagination__item').each(function() {
                 if ($(this).attr('data-href')) {
+                    let urlString = ""
                     //not hardcoding https://www.ebay.com/myb/PurchaseHistory because based on which country it is, it might not be the same url
-                    dataURL.push(`${location.href.split("purchase?")[0]}/purchase?` + $(this).attr('data-href').split("?")[1] + "&pg=purchase");
+                    const locationHref = location.href.split("purchase?")[0]
+
+                    // Does the last character has string
+                    if(locationHref.at(-1) == "/"){
+                        // Okay string already ends with / so need to add it
+                        // Also check to see if the string already contains the character purchase
+
+                        if(location.href.split("purchase?")[0].includes("purchase")){
+                            urlString = `${location.href.split("purchase?")[0]}`.replace("purchase/", "/purchase?")
+                        }
+                        else{
+                            urlString = `${location.href.split("purchase?")[0]}purchase?`
+                        }
+                        
+                    }
+                    else{
+                        if(location.href.split("purchase?")[0].includes("purchase")){
+                            urlString = `${location.href.split("purchase?")[0]}`.replace("purchase", "purchase?")
+                        }
+                        else{
+                            urlString = `${location.href.split("purchase?")[0]}/purchase?`
+                        }
+                    }
+                    
+                    dataURL.push(urlString + $(this).attr('data-href').split("?")[1] + "&pg=purchase");
+                    console.log(urlString + $(this).attr('data-href').split("?")[1] + "&pg=purchase")
                     //.replaceAt($(this).attr('data-url').indexOf("Page=")+5,page));
                 }
             })
@@ -134,10 +160,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     let allCardsItems = $(objHistoryPages[key]).find(".m-order-card")
                     for (let orderCard of allCardsItems) {
                         let orderNumberVal = $(orderCard).find(".ph-col__info-orderNumber").text().split("ORDER NUMBER")[1]
+
+                        // In new version they changed the design so if order number is not found
+                        if(!orderNumberVal){
+                            orderNumberVal = $(orderCard).find(".primary__item--wrapper:contains('Order number:')").text().split("Order number:")[1]
+                        }
+
                         let currentShippingInfoURL = $(orderCard).find("[data-action=VIEW_ORDER_DETAILS]").attr('href')
                         let sellerIDVal = $(orderCard).find(".PSEUDOLINK").text().split(" ")[0]
+
                         let orderTotalVal = $(orderCard).find(".ph-col__info-orderTotal .DEFAULT").text()
-                        
+                        // In new version they changed the design so if order number is not found
+                        if(!orderTotalVal){
+                            orderTotalVal = $(orderCard).find(".primary__item--wrapper:contains('Order total:')").text().split("Order total:")[1]
+                        }
+
+                        let orderDateVal = $(orderCard).find(".ph-col__info-orderDate").text().split("ORDER DATE")[1]
+
+                        if(!orderDateVal){
+                            orderDateVal = $(orderCard).find(".primary__item--wrapper:contains('Order date:')").text().split("Order total:")[1]
+                        }
 
                         let itemCards = $(orderCard).find(".m-item-card")
                         for(let itemCard of itemCards){
@@ -146,32 +188,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             itemID.push($(itemCard).find(".container-item-col__info-item-info-listingId").text().replace("(", "").replace(")", ""))                            
                             itemName.push($(itemCard).find(".container-item-col__info-item-info-title .nav-link").text())
                             itemPrice.push(tempItemPrice)
-                            orderDate.push($(orderCard).find(".ph-col__info-orderDate").text().split("ORDER DATE")[1])
+                            orderDate.push(orderDateVal)
                             sellerID.push(sellerIDVal)
                             orderTotal.push(orderTotalVal)
                             shippingInfoURL.push(currentShippingInfoURL)
                             trackingNumber.push($(itemCard).find(".section-notice__main span.PSEUDOLINK").text())
                             orderNote.push($(itemCard).find(".edit-note__text").text())
                         }
-
-
-                        
-                        
-                        // 
-
-                        // let ajaxCounterForShippingPages = 0
-                        // let shippingHTMLPages = ``
-                        // $.ajax({
-                        //     type: "GET",
-                        //     url: shippingInfoURL,
-                        //     success: function(htmlPage) {
-                        //         shippingHTMLPages = shippingHTMLPages + htmlPage
-                        //         ajaxCounterForShippingPages += 1
-                        //         if (ajaxCounterForAllPages == allCardsItems.length) {
-                        //             parseDataForShippingPage(allHTMLPages, orderNumber) //global var but still passing, orderNumber is an array
-                        //         }
-                        //     }
-                        // })
                     }
                 }
 
@@ -322,3 +345,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     }
 })
+
+
