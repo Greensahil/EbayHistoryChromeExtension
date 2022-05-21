@@ -4,14 +4,14 @@ chrome.runtime.onMessage.addListener(
   function(message, sender, sendResponse) {
       switch(message.type) {
           case "getCount":
-            let dateFilter = $('.container-actions .filter .menu-button__button.expand-btn--borderless.expand-btn.expand-btn--secondary').find(".expand-btn__cell").text().split("AllNot")[0].replace("Not hidden","");
+            let dateFilter = $(".expand-btn__cell").text().split("AllMore")[0].replace("Not hidden","")
             if(!dateFilter || dateFilter == ""){
                 dateFilter = "2021"
             }
             sendResponse(dateFilter);     //The filter year
             break;
           default:
-              console.error("Unrecognised message: ", message);
+              console.error("Unrecognized message: ", message);
       }
   }
 );

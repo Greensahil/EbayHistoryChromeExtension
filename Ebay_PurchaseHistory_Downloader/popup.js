@@ -24,6 +24,8 @@
 //The second pattern match is for ebay.co.uk
 
 // // Since we are in manifest version 3 now we need to change browser action to action
+// Other things were also changed here is a stack overflow link that explains it
+// https://stackoverflow.com/questions/63308160/how-to-migrate-manifest-version-2-to-v3-for-chrome-extension
 
 chrome.tabs.query({
     active: true,
