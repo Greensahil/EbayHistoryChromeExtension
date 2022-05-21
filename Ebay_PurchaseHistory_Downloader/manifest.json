@@ -4,7 +4,8 @@
   "version": "1.8",
   "permissions": [
     "activeTab",
-    "notifications"
+    "notifications",
+    "scripting"
   ],
   "host_permissions":[
     "http://*/",

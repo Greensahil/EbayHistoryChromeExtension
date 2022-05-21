@@ -5,6 +5,7 @@ chrome.runtime.onMessage.addListener(
       switch(message.type) {
           case "getCount":
             let dateFilter = $(".expand-btn__cell").text().split("AllMore")[0].replace("Not hidden","")
+            console.log("Extension: Ebay Purchase History Downloader: DETECTED DATE " + dateFilter)
             if(!dateFilter || dateFilter == ""){
                 dateFilter = "2021"
             }
