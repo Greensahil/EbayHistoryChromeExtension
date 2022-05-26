@@ -46,12 +46,13 @@ chrome.tabs.query({
 // });
 
 document.addEventListener('DOMContentLoaded', function() {
-    let modifiedElement
+    //let modifiedElement
     $(".yearItem").on("click", function() {
-        modifiedElement = $(this)
-
+        //modifiedElement = $(this)
+        const dateFilterSelected = $("#dateFilterForDownload").val()
+        console.log(dateFilterSelected)
         chrome.tabs.executeScript({
-            code: '(' + modifyDOM + ')();' //argument here is a string but function.toString() returns function's code
+            code: '(' + modifyDOM + `)('${dateFilterSelected}');` //argument here is a string but function.toString() returns function's code
         }, (results) => {
             //Here we have just the innerHTML and not DOM structure
         });
@@ -61,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-    function modifyDOM() {
+    function modifyDOM(dateFilterSelected) {
         let typedArray = []
         let orderNumber = []
         let orderDate = []
@@ -90,147 +91,119 @@ document.addEventListener('DOMContentLoaded', function() {
         var dataURL = [];
         //let allHTMLPages = ``
 
-        function downloadListing() {
-            $('.pagination__item').each(function() {
-                if ($(this).attr('data-href')) {
-                    let urlString = ""
-                    //not hardcoding https://www.ebay.com/myb/PurchaseHistory because based on which country it is, it might not be the same url
-                    const locationHref = location.href.split("purchase?")[0]
+        async function downloadListing() {
+            
+            //const numberOfPages = $('.pagination__item').length
+            // Setting max number of pages so that we do not enter an infinite loop
+            const maxNumberOfPages = 14
+            //const dateFilterSelected = $("#dateFilterForDownload").val()
+            console.log("date elem")
+            console.log(dateFilterSelected)
+            
 
-                    // Does the last character has string
-                    if(locationHref.at(-1) == "/"){
-                        // Okay string already ends with / so need to add it
-                        // Also check to see if the string already contains the character purchase
+            for(let page = 0; page < maxNumberOfPages; page++){
 
-                        if(location.href.split("purchase?")[0].includes("purchase")){
-                            urlString = `${location.href.split("purchase?")[0]}`.replace("purchase/", "/purchase?")
-                        }
-                        else{
-                            urlString = `${location.href.split("purchase?")[0]}purchase?`
-                        }
-                        
-                    }
-                    else{
-                        if(location.href.split("purchase?")[0].includes("purchase")){
-                            urlString = `${location.href.split("purchase?")[0]}`.replace("purchase", "purchase?")
-                        }
-                        else{
-                            urlString = `${location.href.split("purchase?")[0]}/purchase?`
-                        }
-                    }
+                // https://www.ebay.com/mye/myebay/ajax/purchase/get?filter=year_filter%3ALAST_YEAR&displayState=UNHIDDEN&page=1&moduleId=2749&pg=purchase
+
+                //https://www.ebay.com/mye/myebay/ajax/purchase/get?filter=year_filter:TWO_YEARS_AGO&displayState=UNHIDDEN&page=1&modules=ORDERS&pg=purchase
+
+                //  "https://www.ebay.com/mye/myebay/ajax/v2/purchase/mp/get?filter=year_filter:" +
+                //  `${dateFilterSelected}&page=${page+1}&modules=ALL_TRANSACTIONS&pg=purchase&mp=purchase-module-v2`
+
+                // "https://www.ebay.com/mye/myebay/ajax/v2/purchase/mp/get?filter=year_filter:" +
+                // `${dateFilterSelected}&page=${page+1}&modules=ALL_TRANSACTIONS&pg=purchase&mp=purchase-module-v2`
+
+                let  moduleIDString = "&moduleId=122164"
+
+                // if(dateFilterSelected == "LAST_60_DAYS"){
+                //     // For last 60 days filter when we send an incorrect page number
+                //     // it still returns repeated result
+                //     // so for this filter we will check if orderID is repeating an then stop 
+                //     moduleIDString = ""
                     
-                    dataURL.push(urlString + $(this).attr('data-href').split("?")[1] + "&pg=purchase");
-                    console.log(urlString + $(this).attr('data-href').split("?")[1] + "&pg=purchase")
-                    //.replaceAt($(this).attr('data-url').indexOf("Page=")+5,page));
-                }
-            })
-            //This means that there are no page numbers in this page. So we can just use the current URL
-            if(dataURL.length == 0){
-                dataURL.push(location.href)
-            }
-
-            for (let i = 0; i < dataURL.length; i++) {
-                getAndPopulateData(dataURL[i],i)
-            }
-
-            let ajaxCounterForAllPages = 0
-
-
-            let objHistoryPages = {} //Using an object instead of a big HTML string
-            //because assigning each page a page number is going to help me set them in ascending order
-            function getAndPopulateData(url,pageNumber) {
-                $.ajax({
-                    type: "GET",
-                    url: url,
-                    success: function(htmlPage) {
-                        //allHTMLPages = allHTMLPages + htmlPage
-                        ajaxCounterForAllPages += 1
-                        objHistoryPages[pageNumber] = htmlPage
-                        if (ajaxCounterForAllPages == dataURL.length) {
-                            parseDataForHTMLPage(objHistoryPages) //global var but still passing
-                            setupExcelFileForDownload()
-                        }
-                    }
-                })
-            }
-
-            //**NOTE: Multiple items can be ordered in the same order. So as you can see
-            //down below, some info is taken from order card, and then it starts looping the item card for more info
-            function parseDataForHTMLPage(objHistoryPages) {
-                //Objects are automatically ordered based on the keys so now, we do not have to order them manually
-                for(let key in objHistoryPages){
-                    let allCardsItems = $(objHistoryPages[key]).find(".m-order-card")
-                    for (let orderCard of allCardsItems) {
-                        let orderNumberVal = $(orderCard).find(".ph-col__info-orderNumber").text().split("ORDER NUMBER")[1]
-
-                        // In new version they changed the design so if order number is not found
-                        if(!orderNumberVal){
-                            orderNumberVal = $(orderCard).find(".primary__item--wrapper:contains('Order number:')").text().split("Order number:")[1]
-                        }
-
-                        let currentShippingInfoURL = $(orderCard).find("[data-action=VIEW_ORDER_DETAILS]").attr('href')
-                        let sellerIDVal = $(orderCard).find(".PSEUDOLINK").text().split(" ")[0]
-
-                        let orderTotalVal = $(orderCard).find(".ph-col__info-orderTotal .DEFAULT").text()
-                        // In new version they changed the design so if order number is not found
-                        if(!orderTotalVal){
-                            orderTotalVal = $(orderCard).find(".primary__item--wrapper:contains('Order total:')").text().split("Order total:")[1]
-                        }
-
-                        let orderDateVal = $(orderCard).find(".ph-col__info-orderDate").text().split("ORDER DATE")[1]
-
-                        if(!orderDateVal){
-                            orderDateVal = $(orderCard).find(".primary__item--wrapper:contains('Order date:')").text().split("Order total:")[1]
-                        }
-
-                        let itemCards = $(orderCard).find(".m-item-card")
-                        for(let itemCard of itemCards){
-                            let tempItemPrice = $(itemCard).find(".container-item-col__info-additionalPrice .BOLD").text()
-                            orderNumber.push(orderNumberVal)                           
-                            itemID.push($(itemCard).find(".container-item-col__info-item-info-listingId").text().replace("(", "").replace(")", ""))                            
-                            itemName.push($(itemCard).find(".container-item-col__info-item-info-title .nav-link").text())
-                            itemPrice.push(tempItemPrice)
-                            orderDate.push(orderDateVal)
-                            sellerID.push(sellerIDVal)
-                            orderTotal.push(orderTotalVal)
-                            shippingInfoURL.push(currentShippingInfoURL)
-                            trackingNumber.push($(itemCard).find(".section-notice__main span.PSEUDOLINK").text())
-                            orderNote.push($(itemCard).find(".edit-note__text").text())
-                        }
-                    }
-                }
-
-
-                
-
-                // function parseDataForShippingPage(allHTMLShippingPagesCombined, orderNumberArr) {
-                //     let shippingCostArrOfElm = $(allHTMLShippingPagesCombined).find(".c-std") //c-std class is for all three cards rather than just one card in each page
-
-                //     let orderNumberCounter = 0;
-                //     for (let i = 0; i < shippingCostArrOfElm; i++) {
-                //         if (i % 2 == 0) {
-                //             let currentOrderNumber = orderNumberArr[orderNumberCounter]
-                //             shippingObject[currentOrderNumber].shippingCost = shippingCostArrOfElm[i].find("#orderCostItemSubTotal").text();
-                //             orderNumberCounter += 1
-                //         }
-                //     }
-
-                //     setupExcelFileForDownload()
-                //     // //:odd gives me every second element in the html which is what I want
-                //     // $(allHTMLShippingPagesCombined).$(".c-std:odd").each(function(elm) {
-                //     //     shippingObject[orderNumber].shippingCost = elm.find("#orderCostItemSubTotal").text()
-                //     // })
-
-
-
+                // }
+                // else{
+                //     // Through testing I have found that this remains constant
+                //     moduleIDString = "&moduleId=122164"
                 // }
 
+                const urlForDownload = `https://www.ebay.com/mye/myebay/ajax/v2/purchase/mp/get?filter=year_filter:`+
+                `${dateFilterSelected}&page=${page+1}&modules=ALL_TRANSACTIONS${moduleIDString}&pg=purchase&mp=purchase-module-v2`
 
+                console.log(urlForDownload)
+
+                const purchaseObj= await sendRequestToObtainPurchaseHistory(urlForDownload)
+
+                // if(dateFilterSelected == "LAST_60_DAYS"){
+                //     // For last 60 days filter when we send an incorrect page number
+                //     // it still returns repeated result
+                //     // so for this filter we will check if orderID is repeating an then stop                
+                //     const firstOrderIDInThisPage = purchaseObj.modules.RIVER[0].data.items[0]?.itemCards[0]?.__myb?.orderId
+                //     // Check if our global array already contains this orderID
+                //     if(orderNumber.includes(firstOrderIDInThisPage)){
+                //         // Ok it is repeating now
+                //         debugger;
+                //         break;
+                //     }
+                // }
+                //const purchaseObject = JSON.parse(purchaseJSON)
+                console.log(purchaseObj.modules.RIVER[0].data.items)
+
+                // So we will keep going until we find no data or we hit the max that we have specified
+                if(!purchaseObj.modules.RIVER[0].data.items){
+                    break;
+                }
+
+                processAllItemsForAPage(purchaseObj.modules.RIVER[0].data.items)
+                
             }
-
+            setupExcelFileForDownload()
 
         }
 
+        function processAllItemsForAPage(arrayOfItems){
+            for(let item of arrayOfItems){
+                // Each item of array is an object
+                if(item.itemCards){
+                    
+                    // Using optional chaining here so that I can access values that are deep within the chain
+                    // The optional chaining operator (?.) enables you to read the value of a property located deep 
+                    // within a chain of connected objects without having to check that each reference in the chain is valid
+                    const itemIDVal = item?.itemCards[0]?.listingId
+                    const itemNameVal = item?.itemCards[0]?.image?.title
+                    const itemPriceVal = item?.itemCards[0]?.additionalPrice?.value?.value
+                    const itemCurrencyVal = item?.itemCards[0]?.additionalPrice?.value?.currency
+                    const orderIDVal = item?.itemCards[0]?.__myb?.orderId
+                    const sellerIDVal = item?.itemCards[0]?.__myb?.sellerInfo[1]?.textSpans[0]?.text
+                    const orderDateVal = item?.secondaryMessage[1]?.textSpans[0]?.text
+                    const orderTotalVal = item.secondaryMessage?.item?.secondaryMessage[3]?.textSpans[0]?.text
+
+                    orderNumber.push(orderIDVal)                           
+                    itemID.push(itemIDVal)                            
+                    itemName.push(itemNameVal)
+                    itemPrice.push(itemPriceVal)
+                    orderDate.push(orderDateVal)
+                    sellerID.push(sellerIDVal)
+                    orderTotal.push(orderTotalVal)
+                    shippingInfoURL.push('')
+                    trackingNumber.push('')
+                    orderNote.push('')
+                }
+                
+            }
+        }
+
+        async function sendRequestToObtainPurchaseHistory(getRequestURLForPurchaseHistory){
+            return new Promise((resolve, reject)=>{
+                $.ajax({
+                    type:"GET",
+                    url: getRequestURLForPurchaseHistory,
+                    success: function(data){
+                        resolve(data)
+                    }
+                })
+            })
+        }
         
 
         function setupExcelFileForDownload() {
