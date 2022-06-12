@@ -57,11 +57,14 @@ document.addEventListener('DOMContentLoaded', function() {
             //Here we have just the innerHTML and not DOM structure
         });
 
-        window.close();
+        //window.close();
     });
 
 
-
+    // You cannot attach a debugger to this function because 
+    // Execute script runs on the open page
+    // see this link for more info: https://stackoverflow.com/questions/28760463/how-to-use-console-log-when-debugging-tabs-executescript
+    // So debug this screen we need to use the open page. I have been logging to the console, opening the line where it says its printing from
     function modifyDOM(dateFilterSelected) {
         let typedArray = []
         let orderNumber = []
@@ -71,13 +74,14 @@ document.addEventListener('DOMContentLoaded', function() {
         let sellerID = []
         let sellerRating = []
         let itemName = []
-        let trackingNumber= []
+        //let trackingNumber= []
         let shippedDate = []
         let deliveryDate = []
         let qtyPurchased = []
         let shippingCost = []
         let shippingType = []
         let itemPrice = []
+        let itemCurrency = []
         let orderTotal = []
         let shippingInfoURL = []
         let orderNote = []
@@ -177,17 +181,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     const sellerIDVal = item?.itemCards[0]?.__myb?.sellerInfo[1]?.textSpans[0]?.text
                     const orderDateVal = item?.secondaryMessage[1]?.textSpans[0]?.text
                     const orderTotalVal = item.secondaryMessage?.item?.secondaryMessage[3]?.textSpans[0]?.text
+                    const orderNoteVal = item?.itemCards[0]?.__myb?.addEditNote?.textSpans[0]?.text
+
+                    
 
                     orderNumber.push(orderIDVal)                           
                     itemID.push(itemIDVal)                            
                     itemName.push(itemNameVal)
                     itemPrice.push(itemPriceVal)
+                    itemCurrency.push(itemCurrencyVal)
                     orderDate.push(orderDateVal)
                     sellerID.push(sellerIDVal)
                     orderTotal.push(orderTotalVal)
                     shippingInfoURL.push('')
-                    trackingNumber.push('')
-                    orderNote.push('')
+                    //trackingNumber.push('')
+                    orderNote.push(orderNoteVal)
                 }
                 
             }
@@ -230,15 +238,18 @@ document.addEventListener('DOMContentLoaded', function() {
             // tempArray.push("ShippingCost")
             // tempArray.push("ShippingType")
             tempArray.push("ItemPrice")
+            tempArray.push("Currency")
             if(blnOrderTotalFound){
                 tempArray.push("OrderTotal")
             }
             tempArray.push("ViewShippingInfo")
 
-            if(blnOrderTotalFound){
-                tempArray.push("TrackingNumber")
-                tempArray.push("OrderNotes")
-            }
+            // if(blnOrderTotalFound){
+            //     tempArray.push("TrackingNumber")
+            //     tempArray.push("OrderNotes")
+            // }
+            //tempArray.push("TrackingNumber")
+            tempArray.push("OrderNotes")
             // tempArray.push("ShipTrackingNums")
             // tempArray.push("TransDetailsURL")
             typedArray.push(tempArray)
@@ -260,15 +271,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 // tempArray.push(shippingCost[i])
                 // tempArray.push(shippingType[i])
                 tempArray.push(itemPrice[i])
+                tempArray.push(itemCurrency[i])
                 if(blnOrderTotalFound){
                     tempArray.push(orderTotal[i])
                 }
                 tempArray.push(shippingInfoURL[i])
-                if(blnOrderTotalFound){
-                    tempArray.push(trackingNumber[i])
-                    tempArray.push(orderNote[i])
-                }
-                
+                // if(blnOrderTotalFound){
+                //     tempArray.push(trackingNumber[i])
+                //     tempArray.push(orderNote[i])
+                // }
+                //
+                //tempArray.push(trackingNumber[i])
+                tempArray.push(orderNote[i])
                 // tempArray.push(shippingTrackingNumbers[i])
                 // tempArray.push(transactionDetailsURL[i])
 
