@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let itemPrice = []
         let itemCurrency = []
         let orderTotal = []
-        let shippingInfoURL = []
+        let orderInfoURL = []
         let orderNote = []
         let shippingTrackingNumbers = []
         let transactionDetailsURL = []
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 processAllItemsForAPage(purchaseObj.modules.RIVER[0].data.items)
                 
             }
-            setupExcelFileForDownload()
+            setupExcelFileForDownload(dateFilterSelected)
 
         }
 
@@ -182,6 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const orderDateVal = item?.secondaryMessage[1]?.textSpans[0]?.text
                     const orderTotalVal = item.secondaryMessage?.item?.secondaryMessage[3]?.textSpans[0]?.text
                     const orderNoteVal = item?.itemCards[0]?.__myb?.addEditNote?.textSpans[0]?.text
+                    const orderInfoURLVal = item?.itemCards[0]?.__myb?.actionList[0]?.action?.URL
 
                     
 
@@ -193,9 +194,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     orderDate.push(orderDateVal)
                     sellerID.push(sellerIDVal)
                     orderTotal.push(orderTotalVal)
-                    shippingInfoURL.push('')
+                    
                     //trackingNumber.push('')
                     orderNote.push(orderNoteVal)
+
+                    orderInfoURL.push(orderInfoURLVal)
                 }
                 
             }
@@ -214,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
 
-        function setupExcelFileForDownload() {
+        function setupExcelFileForDownload(dateFilterSelected) {
 
             //Some information like order total, tracking number and order notes are only found on last 60 days
             //So basically saying if no orderTotal was found do not even show the column in excel
@@ -242,14 +245,16 @@ document.addEventListener('DOMContentLoaded', function() {
             if(blnOrderTotalFound){
                 tempArray.push("OrderTotal")
             }
-            tempArray.push("ViewShippingInfo")
+
+            tempArray.push("OrderNotes")
+            tempArray.push("View Order Detail")
 
             // if(blnOrderTotalFound){
             //     tempArray.push("TrackingNumber")
             //     tempArray.push("OrderNotes")
             // }
             //tempArray.push("TrackingNumber")
-            tempArray.push("OrderNotes")
+            
             // tempArray.push("ShipTrackingNums")
             // tempArray.push("TransDetailsURL")
             typedArray.push(tempArray)
@@ -275,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if(blnOrderTotalFound){
                     tempArray.push(orderTotal[i])
                 }
-                tempArray.push(shippingInfoURL[i])
+                
                 // if(blnOrderTotalFound){
                 //     tempArray.push(trackingNumber[i])
                 //     tempArray.push(orderNote[i])
@@ -283,6 +288,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 //
                 //tempArray.push(trackingNumber[i])
                 tempArray.push(orderNote[i])
+
+                tempArray.push(orderInfoURL[i])
                 // tempArray.push(shippingTrackingNumbers[i])
                 // tempArray.push(transactionDetailsURL[i])
 
@@ -291,33 +298,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 typedArray.push(tempArray)
             }
 
-            downloadExcelFile(typedArray)
+            downloadExcelFile(typedArray, dateFilterSelected)
         }
 
         downloadListing()
 
 
-        function downloadExcelFile(typedArray) {
+        function downloadExcelFile(typedArray, dateFilterSelected) {
             var wb = XLSX.utils.book_new();
             wb.Props = {
                 Title: "Ebay Purchase History",
-                Subject: "Purcahse History",
+                Subject: "Purchase History",
                 Author: "Sahil Sharma"
             };
 
-            wb.SheetNames.push("Purchase History");
+            wb.SheetNames.push(`Purchase History ${dateFilterSelected}`);
 
             let ws_data = typedArray;
 
             let ws = XLSX.utils.aoa_to_sheet(ws_data);
-            wb.Sheets["Purchase History"] = ws;
+            wb.Sheets[`Purchase History ${dateFilterSelected}`] = ws;
             let wbout = XLSX.write(wb, {
                 bookType: 'xlsx',
                 type: 'binary'
             });
             saveAs(new Blob([s2ab(wbout)], {
                 type: "application/octet-stream"
-            }), 'Purchase History.xlsx');
+            }), `Purchase History ${dateFilterSelected}.xlsx`);
 
         }
 
