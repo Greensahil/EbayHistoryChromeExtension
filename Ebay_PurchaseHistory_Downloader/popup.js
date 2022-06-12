@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const orderIDVal = item?.itemCards[0]?.__myb?.orderId
                     const sellerIDVal = item?.itemCards[0]?.__myb?.sellerInfo[1]?.textSpans[0]?.text
                     const orderDateVal = item?.secondaryMessage[1]?.textSpans[0]?.text
-                    const orderTotalVal = item.secondaryMessage?.item?.secondaryMessage[3]?.textSpans[0]?.text
+                    const orderTotalVal = item?.secondaryMessage[3]?.textSpans[0]?.text
                     const orderNoteVal = item?.itemCards[0]?.__myb?.addEditNote?.textSpans[0]?.text
                     const orderInfoURLVal = item?.itemCards[0]?.__myb?.actionList[0]?.action?.URL
 
@@ -219,11 +219,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function setupExcelFileForDownload(dateFilterSelected) {
 
-            //Some information like order total, tracking number and order notes are only found on last 60 days
-            //So basically saying if no orderTotal was found do not even show the column in excel
-            let blnOrderTotalFound = orderTotal.find((total)=>{
-                return total != ""
-            })
+            // //Some information like order total, tracking number and order notes are only found on last 60 days
+            // //So basically saying if no orderTotal was found do not even show the column in excel
+            // let blnOrderTotalFound = orderTotal.find((total)=>{
+            //     return total != ""
+            // })
 
             let tempArray = []
             typedArray = []
@@ -242,10 +242,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // tempArray.push("ShippingType")
             tempArray.push("ItemPrice")
             tempArray.push("Currency")
-            if(blnOrderTotalFound){
-                tempArray.push("OrderTotal")
-            }
-
+            // if(blnOrderTotalFound){
+                
+            // }
+            tempArray.push("OrderTotal")
             tempArray.push("OrderNotes")
             tempArray.push("View Order Detail")
 
@@ -277,10 +277,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 // tempArray.push(shippingType[i])
                 tempArray.push(itemPrice[i])
                 tempArray.push(itemCurrency[i])
-                if(blnOrderTotalFound){
-                    tempArray.push(orderTotal[i])
-                }
-                
+                // if(blnOrderTotalFound){
+                //     tempArray.push(orderTotal[i])
+                // }
+                tempArray.push(orderTotal[i])
                 // if(blnOrderTotalFound){
                 //     tempArray.push(trackingNumber[i])
                 //     tempArray.push(orderNote[i])
