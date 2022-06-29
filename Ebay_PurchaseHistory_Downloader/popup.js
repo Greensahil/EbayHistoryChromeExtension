@@ -1,10 +1,10 @@
 //https://itnext.io/all-youll-ever-need-to-know-about-chrome-extensions-ceede9c28836
 //Things to note:
-//when the popup is clicked the manifest.json files tells it to open popup.html. popup.html has popop.js script inside it
+//when the popup is clicked the manifest.json files tells it to open popup.html. popup.html has popup.js script inside it
 //The problem that needed to be solved in terms of communication is that the content.js has access to the entire page that the user is using but not the popup
 //popup.js and popup.html has access to the popup only
 //I do not need background.js for this project because I do not need to constantly listen
-//So since popup.html is fired on popup open which in turn fires popup.js, the first thing it asks for to content.js is what is the timeframe that 
+//So since popup.html is fired on popup open which in turn fires popup.js, the first thing it asks for to content.js is what is the time frame that 
 //the user has selected in the content.js as popup has no idea about that. content is listening for that message and when it reads it, it sends a 
 //response back to popup which it can use to do stuff
 
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
             //Here we have just the innerHTML and not DOM structure
         });
 
-        //window.close();
+        window.close();
     });
 
 
@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let orderTotal = []
         let orderInfoURL = []
         let orderNote = []
+        let trackingNumber = []
         let shippingTrackingNumbers = []
         let transactionDetailsURL = []
 
@@ -134,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const urlForDownload = `https://www.ebay.com/mye/myebay/ajax/v2/purchase/mp/get?filter=year_filter:`+
                 `${dateFilterSelected}&page=${page+1}&modules=ALL_TRANSACTIONS${moduleIDString}&pg=purchase&mp=purchase-module-v2`
 
-                console.log(urlForDownload)
+                // console.log(urlForDownload)
 
                 const purchaseObj= await sendRequestToObtainPurchaseHistory(urlForDownload)
 
@@ -151,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 //     }
                 // }
                 //const purchaseObject = JSON.parse(purchaseJSON)
-                console.log(purchaseObj.modules.RIVER[0].data.items)
+                //console.log(purchaseObj.modules.RIVER[0].data.items)
 
                 // So we will keep going until we find no data or we hit the max that we have specified
                 if(!purchaseObj.modules.RIVER[0].data.items){
@@ -183,6 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const orderTotalVal = item?.secondaryMessage[3]?.textSpans[0]?.text
                     const orderNoteVal = item?.itemCards[0]?.__myb?.addEditNote?.textSpans[0]?.text
                     const orderInfoURLVal = item?.itemCards[0]?.__myb?.actionList[0]?.action?.URL
+                    const trackingNumberVal = item?.itemCards[0]?.__myb?.deliveryEstimateMessage?.additionalText[1]?.textSpans[1].text
 
                     
 
@@ -199,6 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     orderNote.push(orderNoteVal)
 
                     orderInfoURL.push(orderInfoURLVal)
+                    trackingNumber.push(trackingNumberVal)
                 }
                 
             }
@@ -247,6 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // }
             tempArray.push("OrderTotal")
             tempArray.push("OrderNotes")
+            tempArray.push("TrackingNumber")
             tempArray.push("View Order Detail")
 
             // if(blnOrderTotalFound){
@@ -288,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 //
                 //tempArray.push(trackingNumber[i])
                 tempArray.push(orderNote[i])
-
+                tempArray.push(trackingNumber[i])
                 tempArray.push(orderInfoURL[i])
                 // tempArray.push(shippingTrackingNumbers[i])
                 // tempArray.push(transactionDetailsURL[i])
