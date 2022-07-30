@@ -184,7 +184,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     const orderTotalVal = item?.secondaryMessage[3]?.textSpans[0]?.text
                     const orderNoteVal = item?.itemCards[0]?.__myb?.addEditNote?.textSpans[0]?.text
                     const orderInfoURLVal = item?.itemCards[0]?.__myb?.actionList[0]?.action?.URL
-                    const trackingNumberVal = item?.itemCards[0]?.__myb?.deliveryEstimateMessage?.additionalText[1]?.textSpans[1].text
+
+                    let trackingNumberVal
+
+                    if(item?.itemCards[0]?.__myb?.deliveryEstimateMessage?.additionalText){
+                        trackingNumberVal = item?.itemCards[0]?.__myb?.deliveryEstimateMessage?.additionalText[1]?.textSpans[1].text
+                    }
+                    else{
+                        trackingNumberVal = ""
+                    }
+                    
 
                     
 
