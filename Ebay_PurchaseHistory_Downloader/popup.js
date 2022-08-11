@@ -102,7 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Setting max number of pages so that we do not enter an infinite loop
             const maxNumberOfPages = 14
             //const dateFilterSelected = $("#dateFilterForDownload").val()
-            console.log("date elem")
+            console.log("Ebay Purchase History Download Process beings :)")
+            console.log("Date Selection Made")
             console.log(dateFilterSelected)
             
 
@@ -132,10 +133,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 //     moduleIDString = "&moduleId=122164"
                 // }
 
-                const urlForDownload = `https://www.ebay.com/mye/myebay/ajax/v2/purchase/mp/get?filter=year_filter:`+
+                const urlForDownload = `${window.location.origin}/mye/myebay/ajax/v2/purchase/mp/get?filter=year_filter:`+
                 `${dateFilterSelected}&page=${page+1}&modules=ALL_TRANSACTIONS${moduleIDString}&pg=purchase&mp=purchase-module-v2`
 
-                // console.log(urlForDownload)
+                console.log(` BASE URL Detected ${window.location.origin}`)
+                console.log(` URL CREATED FOR DOWNLOAD IS: `  + urlForDownload)
 
                 const purchaseObj= await sendRequestToObtainPurchaseHistory(urlForDownload)
 
@@ -312,6 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             downloadExcelFile(typedArray, dateFilterSelected)
+            console.log("Ebay Purchase History Download Process ends :)")
         }
 
         downloadListing()

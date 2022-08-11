@@ -1,7 +1,7 @@
 {
   "name": "Ebay Purchase History Downloader",
   "description": "Downloads Ebay's purchase history ",
-  "version": "2.4",
+  "version": "2.5",
   "permissions": [
     "activeTab",
     "http://*/",
@@ -10,7 +10,7 @@
   "content_scripts": [
     {
     "all_frames": false,
-    "matches": ["*://*.ebay.com/*","*://*.ebay.co.uk/*" ], 
+    "matches": ["*://*.ebay.com/*","*://*.ebay.co.uk/*", "*://*.ebay.com.au/*" ], 
     "exclude_matches": [],
       "js": [
         "/src/jquery.js",
