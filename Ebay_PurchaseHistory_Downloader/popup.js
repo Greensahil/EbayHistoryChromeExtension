@@ -157,7 +157,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 //console.log(purchaseObj.modules.RIVER[0].data.items)
 
                 // So we will keep going until we find no data or we hit the max that we have specified
-                if(!purchaseObj.modules.RIVER[0].data.items){
+                // user messaged me about an error here "Cannot read properties of undefined (reading 'data')"
+                // So using ?.
+                if(!purchaseObj.modules?.RIVER[0]?.data?.items){
                     break;
                 }
 
