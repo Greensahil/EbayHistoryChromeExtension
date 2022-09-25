@@ -100,9 +100,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             //const numberOfPages = $('.pagination__item').length
             // Setting max number of pages so that we do not enter an infinite loop
-            const maxNumberOfPages = 14
+            const maxNumberOfPages = 24
             //const dateFilterSelected = $("#dateFilterForDownload").val()
-            console.log("Ebay Purchase History Download Process beings :)")
+            console.log("Ebay Purchase History Download Process begins :)")
             console.log("Date Selection Made")
             console.log(dateFilterSelected)
             
