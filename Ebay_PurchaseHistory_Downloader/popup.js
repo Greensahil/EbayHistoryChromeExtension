@@ -12,6 +12,7 @@
 //debugging notes
 //you can just save in vscode and hit update to update extension. You do not have to remove and re-add the extension
 //You can do step debugging by going to the sources top >> www.ebay.com>> myb > purchaseHistory
+//I just let a line error out, and click on it to go to the place where the error is coming from
 
 //Also, I had to disable the video speed controller extension that I had installed to make this extension work. 
 //Without doing that I was getting an error message:
@@ -172,52 +173,63 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function processAllItemsForAPage(arrayOfItems){
             for(let item of arrayOfItems){
-                // Each item of array is an object
-                if(item.itemCards){
-                    
-                    // Using optional chaining here so that I can access values that are deep within the chain
-                    // The optional chaining operator (?.) enables you to read the value of a property located deep 
-                    // within a chain of connected objects without having to check that each reference in the chain is valid
-                    const itemIDVal = item?.itemCards[0]?.listingId
-                    const itemNameVal = item?.itemCards[0]?.image?.title
-                    const itemPriceVal = item?.itemCards[0]?.additionalPrice?.value?.value
-                    const itemCurrencyVal = item?.itemCards[0]?.additionalPrice?.value?.currency
-                    const orderIDVal = item?.itemCards[0]?.__myb?.orderId
-                    const sellerIDVal = item?.itemCards[0]?.__myb?.sellerInfo[1]?.textSpans[0]?.text
-                    const orderDateVal = item?.secondaryMessage[1]?.textSpans[0]?.text
-                    const orderTotalVal = item?.secondaryMessage[3]?.textSpans[0]?.text
-                    const orderNoteVal = item?.itemCards[0]?.__myb?.addEditNote?.textSpans[0]?.text
-                    const orderInfoURLVal = item?.itemCards[0]?.__myb?.actionList[0]?.action?.URL
 
-                    let trackingNumberVal
 
-                    if(item?.itemCards[0]?.__myb?.deliveryEstimateMessage?.additionalText){
-                        trackingNumberVal = item?.itemCards[0]?.__myb?.deliveryEstimateMessage?.additionalText[1]?.textSpans[1].text
+                const numberOfItemsInTheSameOrder = item.itemCards?item.itemCards.length:0;
+
+                for(let j =0; j<numberOfItemsInTheSameOrder;j++){
+                    // Each item of array is an object
+                    if(item.itemCards){
+                        
+                        // Using optional chaining here so that I can access values that are deep within the chain
+                        // The optional chaining operator (?.) enables you to read the value of a property located deep 
+                        // within a chain of connected objects without having to check that each reference in the chain is valid
+                        const itemIDVal = item?.itemCards[j]?.listingId
+                        const itemNameVal = item?.itemCards[j]?.image?.title
+                        const itemPriceVal = item?.itemCards[j]?.additionalPrice?.value?.value
+                        const itemCurrencyVal = item?.itemCards[j]?.additionalPrice?.value?.currency
+                        const orderIDVal = item?.itemCards[j]?.__myb?.orderId
+                        const sellerIDVal = item?.itemCards[j]?.__myb?.sellerInfo[1]?.textSpans[0]?.text
+                        const orderDateVal = item?.secondaryMessage[1]?.textSpans[0]?.text
+                        const orderTotalVal = item?.secondaryMessage[3]?.textSpans[0]?.text
+                        const orderNoteVal = item?.itemCards[j]?.__myb?.addEditNote?.textSpans[0]?.text
+                        const orderInfoURLVal = item?.itemCards[j]?.__myb?.actionList[0]?.action?.URL
+
+                        let trackingNumberVal
+
+                        if(item?.itemCards[0]?.__myb?.deliveryEstimateMessage?.additionalText){
+                            trackingNumberVal = item?.itemCards[0]?.__myb?.deliveryEstimateMessage?.additionalText[1]?.textSpans[1].text
+                        }
+                        else{
+                            trackingNumberVal = ""
+                        }
+                        
+
+                        if(orderIDVal == "03-07157-01106"){
+                            debugger;
+                        }
+
+                        
+
+                        orderNumber.push(orderIDVal)                           
+                        itemID.push(itemIDVal)                            
+                        itemName.push(itemNameVal)
+                        itemPrice.push(itemPriceVal)
+                        itemCurrency.push(itemCurrencyVal)
+                        orderDate.push(orderDateVal)
+                        sellerID.push(sellerIDVal)
+                        orderTotal.push(orderTotalVal)
+                        
+                        //trackingNumber.push('')
+                        orderNote.push(orderNoteVal)
+
+                        orderInfoURL.push(orderInfoURLVal)
+                        trackingNumber.push(trackingNumberVal)
                     }
-                    else{
-                        trackingNumberVal = ""
-                    }
-                    
-
-                    
-
-                    orderNumber.push(orderIDVal)                           
-                    itemID.push(itemIDVal)                            
-                    itemName.push(itemNameVal)
-                    itemPrice.push(itemPriceVal)
-                    itemCurrency.push(itemCurrencyVal)
-                    orderDate.push(orderDateVal)
-                    sellerID.push(sellerIDVal)
-                    orderTotal.push(orderTotalVal)
-                    
-                    //trackingNumber.push('')
-                    orderNote.push(orderNoteVal)
-
-                    orderInfoURL.push(orderInfoURLVal)
-                    trackingNumber.push(trackingNumberVal)
-                }
                 
             }
+                }
+                
         }
 
         async function sendRequestToObtainPurchaseHistory(getRequestURLForPurchaseHistory){
