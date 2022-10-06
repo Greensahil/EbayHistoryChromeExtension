@@ -10,7 +10,7 @@
   "content_scripts": [
     {
     "all_frames": false,
-    "matches": ["*://*.ebay.com/*","*://*.ebay.co.uk/*", "*://*.ebay.com.au/*" ], 
+    "matches": ["*://*.ebay.com/*","*://*.ebay.co.uk/*", "*://*.ebay.com.au/*", "*://*.ebay.com.ca/*" ], 
     "exclude_matches": [],
       "js": [
         "/src/jquery.js",
