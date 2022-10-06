@@ -184,16 +184,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Using optional chaining here so that I can access values that are deep within the chain
                         // The optional chaining operator (?.) enables you to read the value of a property located deep 
                         // within a chain of connected objects without having to check that each reference in the chain is valid
-                        const itemIDVal = item?.itemCards[j]?.listingId
-                        const itemNameVal = item?.itemCards[j]?.image?.title
-                        const itemPriceVal = item?.itemCards[j]?.additionalPrice?.value?.value
-                        const itemCurrencyVal = item?.itemCards[j]?.additionalPrice?.value?.currency
-                        const orderIDVal = item?.itemCards[j]?.__myb?.orderId
-                        const sellerIDVal = item?.itemCards[j]?.__myb?.sellerInfo[1]?.textSpans[0]?.text
-                        const orderDateVal = item?.secondaryMessage[1]?.textSpans[0]?.text
-                        const orderTotalVal = item?.secondaryMessage[3]?.textSpans[0]?.text
-                        const orderNoteVal = item?.itemCards[j]?.__myb?.addEditNote?.textSpans[0]?.text
-                        const orderInfoURLVal = item?.itemCards[j]?.__myb?.actionList[0]?.action?.URL
+                        const itemIDVal = item?.itemCards?.[j]?.listingId
+                        const itemNameVal = item?.itemCards?.[j]?.image?.title
+                        const itemPriceVal = item?.itemCards?.[j]?.additionalPrice?.value?.value
+                        const itemCurrencyVal = item?.itemCards?.[j]?.additionalPrice?.value?.currency
+                        const orderIDVal = item?.itemCards?.[j]?.__myb?.orderId
+                        const sellerIDVal = item?.itemCards?.[j]?.__myb?.sellerInfo?.[1]?.textSpans?.[0]?.text
+                        const orderDateVal = item?.secondaryMessage?.[1]?.textSpans?.[0]?.text
+                        const orderTotalVal = item?.secondaryMessage?.[3]?.textSpans?.[0]?.text
+                        const orderNoteVal = item?.itemCards?.[j]?.__myb?.addEditNote?.textSpans?.[0]?.text
+                        const orderInfoURLVal = item?.itemCards?.[j]?.__myb?.actionList?.[0]?.action?.URL
 
                         let trackingNumberVal
 
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                         
 
-                        if(orderIDVal == "03-07157-01106"){
+                        if(orderIDVal == "03-06203-49647"){
                             debugger;
                         }
 
