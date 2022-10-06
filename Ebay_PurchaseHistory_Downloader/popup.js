@@ -205,11 +205,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                         
 
-                        if(orderIDVal == "03-06203-49647"){
-                            debugger;
-                        }
-
-                        
+                        // if(orderIDVal == "03-06203-49647"){
+                        //     debugger;
+                        // }                        
 
                         orderNumber.push(orderIDVal)                           
                         itemID.push(itemIDVal)                            
