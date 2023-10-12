@@ -179,7 +179,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         async function sendRuestToGetAdditionalInfo(URL, itemID, transactionID){
             const additionalInfoObj = await fetch(URL+`?itemid=${itemID}&transid=${transactionID}`).then(response => response)
-            return additionalInfoObj
+            // FIX ME:
+                // Need to complete this section for tracking number
+            return undefined;
+            // const response = await additionalInfoObj.json()
+            // return response
         }
 
         async function processAllItemsForAPage(arrayOfItems){
@@ -231,11 +235,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         const arrayOfPromisesAdditionalInfo = []
                         const arrayOfMatchingItemIDs = []
-                        if(itemIDVal && transactionID){
-                            arrayOfPromisesAdditionalInfo.push(sendRuestToGetAdditionalInfo(URLToAddionalInfo, itemIDVal, transactionID))
-                            arrayOfMatchingItemIDs.push(itemIDVal)
+                        // FIX ME: This section is required for tracking number
+                        // if(itemIDVal && transactionID){
+                        //     // Do not await we want to array of promises
+                        //     const additionalInfo = sendRuestToGetAdditionalInfo(URLToAddionalInfo, itemIDVal, transactionID)
+                        //     arrayOfPromisesAdditionalInfo.push(additionalInfo)
+                        //     arrayOfMatchingItemIDs.push(itemIDVal)
                             
-                        }
+                        // }
                         // if(orderIDVal == "03-06203-49647"){
                         //     debugger;
                         // }                        
