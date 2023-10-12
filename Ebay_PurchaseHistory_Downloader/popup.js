@@ -10,8 +10,10 @@
 
 
 //debugging notes
-//you can just save in vscode and hit update to update extension. You do not have to remove and re-add the extension
-//You can do step debugging by going to the sources top >> www.ebay.com>> myb > purchaseHistory
+//you can just save in vscode and hit update to update extension. 
+//Make sure you load and enable the extension to get this option
+//You do not have to remove and re-add the extension
+//You can do step debugging by looking at the console message and clicking on the line number
 //I just let a line error out, and click on it to go to the place where the error is coming from
 
 //Also, I had to disable the video speed controller extension that I had installed to make this extension work. 
@@ -101,7 +103,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             //const numberOfPages = $('.pagination__item').length
             // Setting max number of pages so that we do not enter an infinite loop
-            const maxNumberOfPages = 40
+            // Since we are already breaking the loop when we hit the last page there is not reason to 
+            // not support instances where a user has a large amount of history to download
+            const maxNumberOfPages = 300
             //const dateFilterSelected = $("#dateFilterForDownload").val()
             console.log("Ebay Purchase History Download Process begins :)")
             console.log("Date Selection Made")
@@ -139,6 +143,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 console.log(` BASE URL Detected ${window.location.origin}`)
                 console.log(` URL CREATED FOR DOWNLOAD IS: `  + urlForDownload)
+                
+               
 
                 const purchaseObj= await sendRequestToObtainPurchaseHistory(urlForDownload)
 
@@ -164,14 +170,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     break;
                 }
 
-                processAllItemsForAPage(purchaseObj.modules.RIVER[0].data.items)
+                await processAllItemsForAPage(purchaseObj.modules.RIVER[0].data.items)
                 
             }
             setupExcelFileForDownload(dateFilterSelected)
 
         }
 
-        function processAllItemsForAPage(arrayOfItems){
+        async function sendRuestToGetAdditionalInfo(URL, itemID, transactionID){
+            const additionalInfoObj = await fetch(URL+`?itemid=${itemID}&transid=${transactionID}`).then(response => response)
+            return additionalInfoObj
+        }
+
+        async function processAllItemsForAPage(arrayOfItems){
             for(let item of arrayOfItems){
 
 
@@ -196,18 +207,43 @@ document.addEventListener('DOMContentLoaded', function() {
                         const orderInfoURLVal = item?.itemCards?.[j]?.__myb?.actionList?.[0]?.action?.URL
 
                         let trackingNumberVal
-
-                        if(item?.itemCards[0]?.__myb?.deliveryEstimateMessage?.additionalText){
-                            trackingNumberVal = item?.itemCards[0]?.__myb?.deliveryEstimateMessage?.additionalText[1]?.textSpans[1].text
-                        }
-                        else{
-                            trackingNumberVal = ""
+                        // We used to have tracking number here but eBay moved it to a different place
+                        // So now this will be the first time where we will go to a different page to request additional info
+                        // if(item?.itemCards[0]?.__myb?.deliveryEstimateMessage?.additionalText){
+                        //     trackingNumberVal = item?.itemCards[0]?.__myb?.deliveryEstimateMessage?.additionalText[1]?.textSpans[1].text
+                        // }
+                        // else{
+                        //     trackingNumberVal = ""
+                        // }
+                        //?itemid=184847054924&transid=2471475992008
+                        const URLToAddionalInfo = "https://www.ebay.com/ship/trk/tracking-details"
+                        const URLWithtransactionID = item?.itemCards?.[j]?.__myb?.overflowActionsGroup?.entries[2]?.action?.URL
+                        // In the above URL Get value after transactionId
+                        // Make it case insensitive
+                        let transactionID
+                        if(URLWithtransactionID){
+                            transactionID = URLWithtransactionID?.match(/transactionId=(.*)/i)
+                            if(transactionID){
+                                transactionID = transactionID[1]
+                            }
+                            
                         }
                         
-
+                        const arrayOfPromisesAdditionalInfo = []
+                        const arrayOfMatchingItemIDs = []
+                        if(itemIDVal && transactionID){
+                            arrayOfPromisesAdditionalInfo.push(sendRuestToGetAdditionalInfo(URLToAddionalInfo, itemIDVal, transactionID))
+                            arrayOfMatchingItemIDs.push(itemIDVal)
+                            
+                        }
                         // if(orderIDVal == "03-06203-49647"){
                         //     debugger;
                         // }                        
+
+                        const arrayOfAdditionalInfo = await Promise.all(arrayOfPromisesAdditionalInfo)
+                        console.log(arrayOfAdditionalInfo)
+                        console.log(arrayOfMatchingItemIDs)
+
 
                         orderNumber.push(orderIDVal)                           
                         itemID.push(itemIDVal)                            
@@ -337,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
             wb.Props = {
                 Title: "Ebay Purchase History",
                 Subject: "Purchase History",
-                Author: "Sahil Sharma"
+                Author: "Green Coder"
             };
 
             wb.SheetNames.push(`Purchase History ${dateFilterSelected}`);
