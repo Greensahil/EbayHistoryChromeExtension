@@ -248,8 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         // }                        
 
                         const arrayOfAdditionalInfo = await Promise.all(arrayOfPromisesAdditionalInfo)
-                        console.log(arrayOfAdditionalInfo)
-                        console.log(arrayOfMatchingItemIDs)
+                        
 
 
                         orderNumber.push(orderIDVal)                           
@@ -374,21 +373,52 @@ document.addEventListener('DOMContentLoaded', function() {
 
         downloadListing()
 
+        function getShortenedSheetName(baseName, dateFilter) {
+            // Define common abbreviations
+            // Define common abbreviations
+            const abbreviations = {
+                "LAST_60_DAYS": "L60D",
+                "CURRENT_YEAR": "CurYr",
+                "LAST_YEAR": "LYr",
+                "TWO_YEARS_AGO": "2YrsAgo",
+                "THREE_YEARS_AGO": "3YrsAgo",
+                "FOUR_YEARS_AGO": "4YrsAgo",  
+                "FIVE_YEARS_AGO": "5YrsAgo"   
+            };
+
+        
+            // Use abbreviation if available, else use the original filter
+            let shortenedFilter = abbreviations[dateFilter] || dateFilter;
+        
+            // Construct the full sheet name
+            let sheetName = `${baseName}_${shortenedFilter}`;
+        
+            // If the sheet name is still too long, truncate it
+            if (sheetName.length > 31) {
+                // Truncate and add an ellipsis to indicate truncation
+                sheetName = sheetName.substring(0, 28) + "...";
+            }
+        
+            return sheetName;
+        }
+
 
         function downloadExcelFile(typedArray, dateFilterSelected) {
             var wb = XLSX.utils.book_new();
             wb.Props = {
                 Title: "Ebay Purchase History",
                 Subject: "Purchase History",
-                Author: "Green Coder"
+                Author: "Greenn Coder"
             };
 
-            wb.SheetNames.push(`Purchase History ${dateFilterSelected}`);
+            let sheetName = getShortenedSheetName("PurchHist", dateFilterSelected);
+
+            wb.SheetNames.push(sheetName);
 
             let ws_data = typedArray;
 
             let ws = XLSX.utils.aoa_to_sheet(ws_data);
-            wb.Sheets[`Purchase History ${dateFilterSelected}`] = ws;
+            wb.Sheets[sheetName] = ws;
             let wbout = XLSX.write(wb, {
                 bookType: 'xlsx',
                 type: 'binary'
