@@ -1,84 +1,91 @@
 <!doctype html>
 <html>
    <head>
-      <title>Set Page Color Popup</title>
+      <title>Ebay Purchase History Downloader</title>
       <style>
          body {
-         overflow: hidden;
-         margin: 0px;
-         padding: 0px;
-         background: white;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
          }
-         .yearItem{
-            cursor: pointer;
-            
-         }
-         .infoSection{
+         .jumbotron {
+            background-color: #0073b1;
+            color: white;
             text-align: center;
-            padding: 8px 3px;
-            font-family: sans-serif;
-            font-size: 1em;
-            font-weight: bold;
-            width: 100%;
-            margin-top: 1px;
-            background: #cccccc;
+            padding: 20px 0;
          }
-         h3{
-         padding-left:6px ;
-         padding-right: 6px;
+         .jumbotron img {
+            width: 400px;
+            height: auto;
          }
-         div:hover {
-         background: #aaaaaa;
+         .content {
+            padding: 20px;
+            text-align: center;
          }
-
+         .infoSection {
+            background-color: #0073b1;
+            color: white;
+            margin: 20px auto; /* Center the div */
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%; /* Set the width */
+            max-width: 800px; /* Maximum width */
+            text-align: center;
+         }
+         .infoSection select, .infoSection button {
+            margin: 10px;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+         }
+         .infoSection button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+         }
+         .infoSection button:hover {
+            background-color: #218838;
+         }
+         a {
+            color: #0073b1;
+            text-decoration: none;
+         }
+         a:hover {
+            text-decoration: underline;
+         }
       </style>
-     
    </head>
    <body>
       <div class="jumbotron">
-         <img src="/icon.png" style="width: auto;height: 80%;">
+         <img src="/icon.png" alt="Ebay Purchase History Downloader Icon">
       </div>
-      <h3 style="margin: 0 auto;">Please make sure that you are in eBay website and that you are logged in.
-         To get to eBay website click <a href="https://www.ebay.com/" target="_blank">here</a>.          
-         Select the time frame for purchase history 
-         (If you want to view your purchase history on eBay click <a href="https://www.ebay.com/myb/PurchaseHistory" target="_blank">here</a>).
-      </h3>
+      <div class="content">
+         <h3>Please ensure you are logged in on the eBay website.</h3>
+         <p>To access eBay, click <a href="https://www.ebay.com/" target="_blank">here</a>.</p>
+         <p>To view your eBay purchase history, click <a href="https://www.ebay.com/myb/PurchaseHistory" target="_blank">here</a>.</p>
+         <p>Once on eBay, select a time frame below and click 'Download'.</p>
+         <p><strong>Note:</strong> If downloading multiple years, the Excel files may download in a non-sequential order (e.g., 2024, 2021, 2019, etc.). Please ensure that the start year is the same as or before the end year to avoid inconsistencies.</p>
+      </div>
       
-      <p>Once you are in any of eBay page select from the time frame below and click the download button.</p>
+      <div class="infoSection">
+         <label for="startYear">Start Year:</label>
+         <select id="startYear" name="startYear"></select>
+         <label for="endYear">End Year:</label>
+         <select id="endYear" name="endYear"></select>
+         <button class="yearItem">Download</button>
+      </div>
+      
       <center>
-         <a href= "https://ko-fi.com/greencoder">(Right click and open in new tab if you want to support my work :)) </a>
+         <a href="https://ko-fi.com/greencoder" target="_blank">Support my work :)</a>
       </center>
       
-      <div style="margin: 0 auto;" class="infoSection">Download purchase history for:  
-       <select id="dateFilterForDownload">
-            <option value="LAST_60_DAYS">Last 60 days</option>
-            <option value="CURRENT_YEAR">Current Year</option>
-            <option value="LAST_YEAR">Last Year</option>
-            <option value="TWO_YEARS_AGO">Two Years ago</option>
-            <option value="THREE_YEARS_AGO">Three Years Ago</option>
-            <option value="FOUR_YEARS_AGO">Four Years Ago</option>
-            <option value="FIVE_YEARS_AGO">Five Years Ago</option>
-         </select>
-         <button class="yearItem">Download</button> 
-      </div>
-     
-      <!-- <span class="dynamicYear">Last 60 Days</span> -->
-      <!--  To determine what years filter eBay was using I changed the year filter while the network tab was
-            open and played saw it from the GET request ur
-      -->
-      <!-- // LAST_YEAR
-            // LAST_60_DAYS
-            // CURRENT_YEAR
-            // TWO_YEARS_AGO -->
-     
-      <!-- Need to load the script files at the end because, I am changing the content of dynamic year based on the page. If I put
-           the script tags at the top it will be a race between what appears first between "Last 60 days" and what is actually selected
-      -->
       <script src="src/jquery.js"></script>
       <script src="src/file-saver-min.js"></script>
       <script src="src/sheet-min.js"></script>
       <script src="popup.js"></script>
-
    </body>
-  
 </html>

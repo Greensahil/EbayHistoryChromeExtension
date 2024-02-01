@@ -49,20 +49,69 @@ chrome.tabs.query({
 // });
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Populate year dropdowns
+    const currentYear = new Date().getFullYear();
+    for (let year = currentYear; year >= 2000; year--) {
+        $('#startYear').append(new Option(year, year));
+        $('#endYear').append(new Option(year, year));
+    }
+
     //let modifiedElement
     $(".yearItem").on("click", function() {
-        //modifiedElement = $(this)
-        const dateFilterSelected = $("#dateFilterForDownload").val()
-        console.log(dateFilterSelected)
-        chrome.tabs.executeScript({
-            code: '(' + modifyDOM + `)('${dateFilterSelected}');` //argument here is a string but function.toString() returns function's code
-        }, (results) => {
-            //Here we have just the innerHTML and not DOM structure
-        });
-
+        const startYear = parseInt($('#startYear').val());
+        const endYear = parseInt($('#endYear').val());
+    
+        // Iterate through each year in the range
+        for (let year = startYear; year <= endYear; year++) {
+            // Convert year to eBay specific term
+            const dateFilterSelected = mapYearToEbayTerm(year);
+            if (dateFilterSelected) {
+                chrome.tabs.executeScript({
+                    code: '(' + modifyDOM + `)('${dateFilterSelected}');`
+                }, (results) => {
+                    // Results from executed script for each year
+                });
+            } else {
+                alert("Year " + year + " is not supported.");
+            }
+        }
+    
         window.close();
     });
-
+    function mapYearToEbayTerm(year) {
+        const currentYear = 2024; // Set to current year
+        const yearDiff = currentYear - year;
+        switch (yearDiff) {
+            case 0: return "CURRENT_YEAR";
+            case 1: return "LAST_YEAR";
+            case 2: return "TWO_YEARS_AGO";
+            case 3: return "THREE_YEARS_AGO";
+            case 4: return "FOUR_YEARS_AGO";
+            case 5: return "FIVE_YEARS_AGO";
+            case 6: return "SIX_YEARS_AGO";
+            case 7: return "SEVEN_YEARS_AGO";
+            case 8: return "EIGHT_YEARS_AGO";
+            case 9: return "NINE_YEARS_AGO";
+            case 10: return "TEN_YEARS_AGO";
+            case 11: return "ELEVEN_YEARS_AGO";
+            case 12: return "TWELVE_YEARS_AGO";
+            case 13: return "THIRTEEN_YEARS_AGO";
+            case 14: return "FOURTEEN_YEARS_AGO";
+            case 15: return "FIFTEEN_YEARS_AGO";
+            case 16: return "SIXTEEN_YEARS_AGO";
+            case 17: return "SEVENTEEN_YEARS_AGO";
+            case 18: return "EIGHTEEN_YEARS_AGO";
+            case 19: return "NINETEEN_YEARS_AGO";
+            case 20: return "TWENTY_YEARS_AGO";
+            case 21: return "TWENTY_ONE_YEARS_AGO";
+            case 22: return "TWENTY_TWO_YEARS_AGO";
+            // Add more cases as needed
+            default: return null;
+        }
+    }
+    
+    // Function to map selected year range to eBay specific terms
+    
 
     // You cannot attach a debugger to this function because 
     // Execute script runs on the open page
@@ -177,14 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         }
 
-        async function sendRuestToGetAdditionalInfo(URL, itemID, transactionID){
-            const additionalInfoObj = await fetch(URL+`?itemid=${itemID}&transid=${transactionID}`).then(response => response)
-            // FIX ME:
-                // Need to complete this section for tracking number
-            return undefined;
-            // const response = await additionalInfoObj.json()
-            // return response
-        }
+       
 
         async function processAllItemsForAPage(arrayOfItems){
             for(let item of arrayOfItems){
@@ -373,61 +415,61 @@ document.addEventListener('DOMContentLoaded', function() {
 
         downloadListing()
 
-        function getShortenedSheetName(baseName, dateFilter) {
-            // Define common abbreviations
-            // Define common abbreviations
-            const abbreviations = {
-                "LAST_60_DAYS": "L60D",
-                "CURRENT_YEAR": "CurYr",
-                "LAST_YEAR": "LYr",
-                "TWO_YEARS_AGO": "2YrsAgo",
-                "THREE_YEARS_AGO": "3YrsAgo",
-                "FOUR_YEARS_AGO": "4YrsAgo",  
-                "FIVE_YEARS_AGO": "5YrsAgo"   
-            };
-
         
-            // Use abbreviation if available, else use the original filter
-            let shortenedFilter = abbreviations[dateFilter] || dateFilter;
-        
-            // Construct the full sheet name
-            let sheetName = `${baseName}_${shortenedFilter}`;
-        
-            // If the sheet name is still too long, truncate it
-            if (sheetName.length > 31) {
-                // Truncate and add an ellipsis to indicate truncation
-                sheetName = sheetName.substring(0, 28) + "...";
-            }
-        
-            return sheetName;
-        }
 
 
-        function downloadExcelFile(typedArray, dateFilterSelected) {
+        function downloadExcelFile(typedArray, dateFilter) {
             var wb = XLSX.utils.book_new();
             wb.Props = {
                 Title: "Ebay Purchase History",
                 Subject: "Purchase History",
-                Author: "Greenn Coder"
+                Author: "Green Coder"
             };
-
-            let sheetName = getShortenedSheetName("PurchHist", dateFilterSelected);
-
+        
+            let sheetName = getSheetNameFromDateFilter(dateFilter);
+        
             wb.SheetNames.push(sheetName);
-
             let ws_data = typedArray;
-
             let ws = XLSX.utils.aoa_to_sheet(ws_data);
             wb.Sheets[sheetName] = ws;
-            let wbout = XLSX.write(wb, {
-                bookType: 'xlsx',
-                type: 'binary'
-            });
-            saveAs(new Blob([s2ab(wbout)], {
-                type: "application/octet-stream"
-            }), `Purchase History ${dateFilterSelected}.xlsx`);
-
+        
+            let fileName = `Ebay_Purchase_History_${sheetName}.xlsx`;
+            let wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+            saveAs(new Blob([s2ab(wbout)], { type: "application/octet-stream" }), fileName);
         }
+
+        function getSheetNameFromDateFilter(dateFilter) {
+            const currentYear = new Date().getFullYear();
+            const nameMap = {
+                "LAST_60_DAYS": "Last_60_Days",
+                "CURRENT_YEAR": currentYear.toString(),
+                "LAST_YEAR": (currentYear - 1).toString(),
+                "TWO_YEARS_AGO": (currentYear - 2).toString(),
+                "THREE_YEARS_AGO": (currentYear - 3).toString(),
+                "FOUR_YEARS_AGO": (currentYear - 4).toString(),
+                "FIVE_YEARS_AGO": (currentYear - 5).toString(),
+                "SIX_YEARS_AGO": (currentYear - 6).toString(),
+                "SEVEN_YEARS_AGO": (currentYear - 7).toString(),
+                "EIGHT_YEARS_AGO": (currentYear - 8).toString(),
+                "NINE_YEARS_AGO": (currentYear - 9).toString(),
+                "TEN_YEARS_AGO": (currentYear - 10).toString(),
+                "ELEVEN_YEARS_AGO": (currentYear - 11).toString(),
+                "TWELVE_YEARS_AGO": (currentYear - 12).toString(),
+                "THIRTEEN_YEARS_AGO": (currentYear - 13).toString(),
+                "FOURTEEN_YEARS_AGO": (currentYear - 14).toString(),
+                "FIFTEEN_YEARS_AGO": (currentYear - 15).toString(),
+                "SIXTEEN_YEARS_AGO": (currentYear - 16).toString(),
+                "SEVENTEEN_YEARS_AGO": (currentYear - 17).toString(),
+                "EIGHTEEN_YEARS_AGO": (currentYear - 18).toString(),
+                "NINETEEN_YEARS_AGO": (currentYear - 19).toString(),
+                "TWENTY_YEARS_AGO": (currentYear - 20).toString(),
+                "TWENTY_ONE_YEARS_AGO": (currentYear - 21).toString(),
+                "TWENTY_TWO_YEARS_AGO": (currentYear - 22).toString()
+            };
+        
+            return nameMap[dateFilter] || dateFilter;
+        }
+        
 
         function s2ab(s) {
             var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
