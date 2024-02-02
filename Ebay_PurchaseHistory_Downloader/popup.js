@@ -51,7 +51,7 @@ chrome.tabs.query({
 document.addEventListener('DOMContentLoaded', function() {
     // Populate year dropdowns
     const currentYear = new Date().getFullYear();
-    for (let year = currentYear; year >= 2000; year--) {
+    for (let year = currentYear; year >= 2017; year--) {
         $('#startYear').append(new Option(year, year));
         $('#endYear').append(new Option(year, year));
     }
