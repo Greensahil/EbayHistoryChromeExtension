@@ -1,0 +1,36 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es2021": true,
+        "jest/globals": true
+    },
+    "extends": [
+        "airbnb-base","plugin:jest/recommended"
+    ],
+    "parserOptions": {
+        "ecmaVersion": 12
+    },
+    "rules": {
+        // Functions and classes are hoisted, so it's not necessary to define them before using them
+        // But as we get things cleaned up, we can turn this rule back on to be up to the Airbnb style guide
+        "no-use-before-define": ["error", {"functions": false, "classes": false}],
+        "no-console": "off",
+        "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+        // Airbnb style guide by default also restricts forop loops.  I don't think that's necessary
+        // https://github.com/airbnb/javascript/blob/7152396219e290426a03e47837e53af6bcd36bbe/packages/eslint-config-airbnb-base/rules/style.js#L259-L262
+        // So I am overriding that rule here
+        "no-restricted-syntax": ["error", "ForInStatement", "LabeledStatement", "WithStatement"],
+        "linebreak-style": 0   // <----------
+    },
+    "globals": {
+        // It may be worth noting that you set the global variable to true if you can assign 
+        // the variable to something else and false if it shouldn't be reassigned
+        "createGenericMessage":false,
+        "$":false,
+        "glbObj":false,
+        "moment":false
+       
+    }
+    
+}
