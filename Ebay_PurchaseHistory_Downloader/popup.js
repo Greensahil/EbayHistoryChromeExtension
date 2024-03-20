@@ -66,14 +66,14 @@ document.addEventListener('DOMContentLoaded', () => {
   $('.yearItem').on('click', () => {
     const startYear = parseInt($('#startYear').val(), 10);
     const endYear = parseInt($('#endYear').val(), 10);
-
+    const includeISBN = $('#includeISBN').is(':checked');
     // Iterate through each year in the range
     for (let year = startYear; year <= endYear; year += 1) {
       // Convert year to eBay specific term
       const dateFilterSelected = mapYearToEbayTerm(year);
       if (dateFilterSelected) {
         chrome.tabs.executeScript({
-          code: `(${modifyDOM})('${dateFilterSelected}');`,
+          code: `(${modifyDOM})('${dateFilterSelected}', ${includeISBN});`,
         }, (results) => {
           // Results from executed script for each year
         });
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // see this link for more info: https://stackoverflow.com/questions/28760463/how-to-use-console-log-when-debugging-tabs-executescript
   // So debug this screen we need to use the open page.
   // I have been logging to the console, opening the line where it says its printing from
-  function modifyDOM(dateFilterSelected) {
+  function modifyDOM(dateFilterSelected, includeISBN) {
     let typedArray = [];
     const orderNumber = [];
     const orderDate = [];
@@ -136,6 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderInfoURL = [];
     const orderNote = [];
     const trackingNumber = [];
+    const itemISBN = [];
 
     // let allHTMLPages = ``
 
@@ -181,6 +182,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function processAllItemsForAPage(arrayOfItems) {
+      let isbnMap = {};
+      if (includeISBN) {
+        // Step 1: Create a map of fetchISBN promises keyed by item ID
+        const isbnPromises = arrayOfItems.flatMap((item) => (item.itemCards
+          ? item.itemCards.map((card) => ({
+            id: card.listingId,
+            promise: fetchISBN(card.listingId),
+          })) : []));
+
+        // Step 2: Await all promises and build a map of item IDs to their resolved ISBNs
+        const isbnResults = await Promise.all(isbnPromises.map((p) => p.promise));
+        isbnMap = isbnPromises.reduce((acc, cur, idx) => {
+          acc[cur.id] = isbnResults[idx] || '';
+          return acc;
+        }, {});
+      }
+
       for (const item of arrayOfItems) {
         const numberOfItemsInTheSameOrder = item.itemCards ? item.itemCards.length : 0;
 
@@ -194,6 +212,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // within a chain of connected objects
             // without having to check that each reference in the chain is valid
             const itemIDVal = item?.itemCards?.[j]?.listingId;
+
+            let isbn = '';
+            if (includeISBN) {
+              isbn = isbnMap[itemIDVal];
+            }
+
             const itemNameVal = item?.itemCards?.[j]?.image?.title;
             const itemPriceVal = item?.itemCards?.[j]?.additionalPrice?.value?.value;
             const itemCurrencyVal = item?.itemCards?.[j]?.additionalPrice?.value?.currency;
@@ -219,6 +243,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             orderInfoURL.push(orderInfoURLVal);
             trackingNumber.push(trackingNumberVal);
+            if (includeISBN) {
+              itemISBN.push(isbn);
+            }
           }
         }
       }
@@ -231,6 +258,23 @@ document.addEventListener('DOMContentLoaded', () => {
           url: getRequestURLForPurchaseHistory,
           success(data) {
             resolve(data);
+          },
+        });
+      });
+    }
+
+    async function fetchISBN(itemID) {
+      const itemPageUrl = `${window.location.origin}/itm/${itemID}`;
+      return new Promise((resolve, reject) => {
+        $.ajax({
+          url: itemPageUrl,
+          success(html) {
+            const isbnElement = $(html).find('dl.ux-labels-values--isbn dd.ux-labels-values__values .ux-textspans').text();
+            resolve(isbnElement || 'N/A');
+          },
+          error(err) {
+            console.log('Error fetching ISBN for itemID:', itemID, err);
+            resolve('');
           },
         });
       });
@@ -257,6 +301,10 @@ document.addEventListener('DOMContentLoaded', () => {
       tempArray.push('OrderTotal');
       tempArray.push('OrderNotes');
       tempArray.push('TrackingNumber');
+
+      if (includeISBN) {
+        tempArray.push('ISBN');
+      }
       tempArray.push('View Order Detail');
 
       typedArray.push(tempArray);
@@ -273,6 +321,10 @@ document.addEventListener('DOMContentLoaded', () => {
         tempArray.push(orderTotal[i]);
         tempArray.push(orderNote[i]);
         tempArray.push(trackingNumber[i]);
+
+        if (includeISBN) {
+          tempArray.push(itemISBN[i]);
+        }
         tempArray.push(orderInfoURL[i]);
 
         // Push each array as a row to typed array
