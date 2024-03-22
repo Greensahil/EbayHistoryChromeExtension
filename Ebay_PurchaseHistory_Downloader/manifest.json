@@ -1,7 +1,7 @@
 {
   "name": "Ebay Purchase History Downloader",
   "description": "Downloads Ebay's purchase history ",
-  "version": "3.5",
+  "version": "3.6",
   "permissions": [
     "activeTab",
     "http://*/",

@@ -137,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderNote = [];
     const trackingNumber = [];
     const itemISBN = [];
+    const itemImageURL = [];
 
     // let allHTMLPages = ``
 
@@ -228,6 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const orderNoteVal = item?.itemCards?.[j]?.__myb?.addEditNote?.textSpans?.[0]?.text;
             const orderInfoURLVal = item?.itemCards?.[j]?.__myb?.actionList?.[0]?.action?.URL;
             const trackingNumberVal = item?.itemCards?.[j]?.__myb?.actionList?.[0]?.action?.params?.trackingNumber ?? '';
+            const imageUrl = item?.itemCards?.[j]?.image?.URL || 'No Image Found';
 
             orderNumber.push(orderIDVal);
             itemID.push(itemIDVal);
@@ -246,6 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (includeISBN) {
               itemISBN.push(isbn);
             }
+            itemImageURL.push(imageUrl);
           }
         }
       }
@@ -301,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tempArray.push('OrderTotal');
       tempArray.push('OrderNotes');
       tempArray.push('TrackingNumber');
+      tempArray.push('Image URL');
 
       if (includeISBN) {
         tempArray.push('ISBN');
@@ -321,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tempArray.push(orderTotal[i]);
         tempArray.push(orderNote[i]);
         tempArray.push(trackingNumber[i]);
-
+        tempArray.push(itemImageURL[i]);
         if (includeISBN) {
           tempArray.push(itemISBN[i]);
         }
