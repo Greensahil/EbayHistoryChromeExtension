@@ -1,29 +1,33 @@
 {
+  "manifest_version": 3,
   "name": "Ebay Purchase History Downloader",
-  "description": "Downloads Ebay's purchase history ",
+  "description": "Downloads Ebay's purchase history",
   "version": "3.6",
   "permissions": [
     "activeTab",
-    "http://*/",
-    "https://*/"
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://*.ebay.com/*",
+    "*://*.ebay.co.uk/*",
+    "*://*.ebay.com.au/*",
+    "*://*.ebay.com.ca/*"
   ],
   "content_scripts": [
     {
-    "all_frames": false,
-    "matches": ["*://*.ebay.com/*","*://*.ebay.co.uk/*", "*://*.ebay.com.au/*", "*://*.ebay.com.ca/*" ], 
-    "exclude_matches": [],
+      "matches": ["*://*.ebay.com/*","*://*.ebay.co.uk/*", "*://*.ebay.com.au/*", "*://*.ebay.com.ca/*"],
       "js": [
         "/src/jquery.js",
         "/src/sheet-min.js",
         "/src/file-saver-min.js",
         "content.js"
-      ]
+      ],
+      "run_at": "document_idle"
     }
   ],
-  "browser_action": {
-      "default_title": "Download Purchase History.",
-      "default_icon": "icon.png",
-      "default_popup": "popup.html"
-  },
-  "manifest_version": 2
+  "action": {
+    "default_title": "Download Purchase History",
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  }
 }

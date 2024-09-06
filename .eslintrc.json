@@ -29,8 +29,8 @@
         "createGenericMessage":false,
         "$":false,
         "glbObj":false,
-        "moment":false
-       
+        "moment":false,
+        "chrome":false
     }
     
 }
