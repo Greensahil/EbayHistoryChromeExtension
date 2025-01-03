@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Ebay Purchase History Downloader",
   "description": "Downloads Ebay's purchase history",
-  "version": "3.7",
+  "version": "3.8",
   "permissions": [
     "activeTab",
     "scripting"
