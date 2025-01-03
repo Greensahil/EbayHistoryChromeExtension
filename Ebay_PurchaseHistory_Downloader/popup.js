@@ -67,13 +67,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const dateFilterSelected = mapYearToEbayTerm(year);
       if (dateFilterSelected) {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          // The chrome.scripting.executeScript method is a powerful API 
+          // The chrome.scripting.executeScript method is a powerful API
           // provided by Chrome that allows an extension to inject and execute a script in the context of a web page.
 
-          // When you use chrome.scripting.executeScript, you're essentially telling Chrome to take the function you've 
+          // When we use chrome.scripting.executeScript, we're essentially telling Chrome to take the function we've
           // specified (in this case, modifyDOM) and inject it into the web page's context, where it will then be executed.
-          // Once injected, the modifyDOM function runs in the context of the web page, not in the context of 
-          // our extension's popup. This is why it can make AJAX requests and interact with the page's 
+          // Once injected, the modifyDOM function runs in the context of the web page, not in the context of
+          // our extension's popup. This is why it can make AJAX requests and interact with the page's
           // DOM as if it were a script loaded by the page itself.
           chrome.scripting.executeScript({
             target: { tabId: tabs[0].id },
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function mapYearToEbayTerm(year) {
-  const currentYear = 2024; // Set to current year
+  const currentYear = new Date().getFullYear(); // Set to current year
   const yearDiff = currentYear - year;
   switch (yearDiff) {
     case 0: return 'CURRENT_YEAR';
@@ -191,9 +191,7 @@ function modifyDOM(dateFilterSelected, includeISBN) {
             isbn = isbnMap[itemIDVal];
           }
 
-        
-
-          //console.log('herererererrrrrrrrrrrrrrrrrrrrrrrr')
+          // console.log('herererererrrrrrrrrrrrrrrrrrrrrrrr')
           const itemNameVal = item?.itemCards?.[j]?.image?.title;
           const itemPriceVal = item?.itemCards?.[j]?.additionalPrice?.value?.value;
           const itemCurrencyVal = item?.itemCards?.[j]?.additionalPrice?.value?.currency;
@@ -213,14 +211,12 @@ function modifyDOM(dateFilterSelected, includeISBN) {
           // Extract quantity
           // Slightly better than ?. method might want to improve others in the future
           let quantityVal = 1; // Default to 1 if not found
-          const aspectValuesList = item.itemCards[j].aspectValuesList;
+          const { aspectValuesList } = item.itemCards[j];
           if (aspectValuesList && aspectValuesList.length > 0) {
-            const quantityAspect = aspectValuesList.find(aspect => 
-              aspect.textSpans && 
-              aspect.textSpans[0] && 
-              aspect.textSpans[0].text && 
-              aspect.textSpans[0].text.toLowerCase().startsWith('quantity :')
-            );
+            const quantityAspect = aspectValuesList.find((aspect) => aspect.textSpans
+              && aspect.textSpans[0]
+              && aspect.textSpans[0].text
+              && aspect.textSpans[0].text.toLowerCase().startsWith('quantity :'));
             if (quantityAspect) {
               const quantityText = quantityAspect.textSpans[0].text;
               const quantityMatch = quantityText.match(/\d+/);
